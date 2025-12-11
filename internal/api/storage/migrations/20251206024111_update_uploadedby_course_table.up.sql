@@ -1,0 +1,2 @@
+ALTER TABLE courses
+ADD COLUMN uploaded_by TEXT NOT NULL;
