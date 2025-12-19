@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KLMS - User Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5dade2;
+            --primary-dark: #3498db;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --skip-gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #c7ddf7, #e3f0ff);
+            color: var(--dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--white);
+            box-shadow: var(--box-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 2rem;
+            animation: rotateIn 1s ease-out;
+        }
+
+        @keyframes rotateIn {
+            from {
+                transform: rotate(-30deg);
+                opacity: 0;
+            }
+            to {
+                transform: rotate(0);
+                opacity: 1;
+            }
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .nav-links li {
+            margin-left: 20px;
+        }
+
+        .nav-links a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 0;
+        }
+
+        .profile-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 40px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--dark);
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        .profile-subtitle {
+            color: var(--gray);
+            animation: fadeIn 1s ease-out 0.4s both;
+        }
+
+        .profile-image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-out 0.5s both;
+        }
+
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            overflow: hidden;
+            border: 4px solid var(--primary);
+            position: relative;
+        }
+
+        .profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-image i {
+            font-size: 3rem;
+            color: var(--gray);
+        }
+
+        .profile-image .loading-spinner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-width: 140px;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
+            color: white;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+            box-shadow: 0 4px 6px rgba(220, 53, 69, 0.2);
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-skip {
+            background: var(--skip-gradient);
+            color: var(--primary-dark);
+            border: 2px solid var(--light-gray);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-skip::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #e3f0ff 0%, #c7ddf7 100%);
+            border-radius: var(--border-radius);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-skip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(93, 173, 226, 0.2);
+            border-color: var(--primary);
+        }
+
+        .btn-skip:hover::before {
+            opacity: 1;
+        }
+
+        .btn-skip:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:disabled {
+            background-color: var(--secondary);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .upload-form {
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            background-color: var(--light);
+            border: 2px dashed var(--primary);
+            border-radius: var(--border-radius);
+            color: var(--primary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-input-button:hover {
+            background-color: rgba(93, 173, 226, 0.1);
+        }
+
+        .file-input-button i {
+            margin-right: 8px;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .form-hint {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                transform: translateX(-5px);
+            }
+            20%, 40%, 60%, 80% {
+                transform: translateX(5px);
+            }
+        }
+
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(40, 167, 69, 0.2);
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner-large {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(93, 173, 226, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .profile-container {
+                padding: 30px 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header-container {
+                flex-direction: column;
+            }
+
+            .nav-links {
+                margin-top: 15px;
+            }
+
+            .nav-links li {
+                margin: 0 10px;
+            }
+
+            .profile-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .profile-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>KLMS</span>
+            </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="profile-container">
+            <div class="profile-header">
+                <h2 class="profile-title">User Profile</h2>
+                <p class="profile-subtitle">Manage your profile information</p>
+            </div>
+            
+            <div id="alert-container"></div>
+            
+            <div class="profile-image-container">
+                <div class="profile-image" id="profile-image">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="profile-actions">
+                    <button class="btn btn-primary" id="upload-btn">
+                        <i class="fas fa-upload"></i> Upload Image
+                    </button>
+                    <button class="btn btn-danger" id="delete-btn" style="display: none;">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                    <button class="btn btn-skip" id="skip-btn">
+                        <i class="fas fa-arrow-right"></i> Skip
+                    </button>
+                </div>
+            </div>
+            
+            <form id="upload-form" class="upload-form" style="display: none;">
+                <div class="form-group">
+                    <label for="profile-image-input" class="form-label">Select Profile Image</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="profile-image-input" class="file-input" accept="image/png, image/jpeg">
+                        <div class="file-input-button">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Choose a file</span>
+                        </div>
+                    </div>
+                    <div class="file-name" id="file-name">No file selected</div>
+                    <div class="form-hint">Allowed formats: PNG, JPEG. Maximum size: 1MB</div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="submit-btn">
+                    <i class="fas fa-save"></i> Save Image
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            // function checkSession() {
+            //     const cookies = document.cookie.split(';');
+            //     for (let i = 0; i < cookies.length; i++) {
+            //         const cookie = cookies[i].trim();
+            //         if (cookie.startsWith('session-id=')) {
+            //             return true;
+            //         }
+            //     }
+            //     return false;
+            // }
+            
+            // // If not logged in, redirect to login
+            // if (!checkSession()) {
+            //     window.location.href = 'login.html';
+            //     return;
+            // }
+            
+            // Elements
+            const profileImage = document.getElementById('profile-image');
+            const uploadBtn = document.getElementById('upload-btn');
+            const deleteBtn = document.getElementById('delete-btn');
+            const skipBtn = document.getElementById('skip-btn');
+            const uploadForm = document.getElementById('upload-form');
+            const fileInput = document.getElementById('profile-image-input');
+            const fileName = document.getElementById('file-name');
+            const submitBtn = document.getElementById('submit-btn');
+            const alertContainer = document.getElementById('alert-container');
+            
+            // Show alert message
+            function showAlert(message, type) {
+                alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    alertContainer.innerHTML = '';
+                }, 5000);
+            }
+            
+            // Load current profile image
+            function loadProfileImage() {
+                // Show loading spinner
+                profileImage.innerHTML = '<div class="loading-spinner"><div class="spinner-large"></div></div>';
+                
+                fetch('/get-profile', {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load profile image');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.url) {
+                        profileImage.innerHTML = `<img src="${data.url}" alt="Profile Image">`;
+                        deleteBtn.style.display = 'inline-block';
+                    } else {
+                        profileImage.innerHTML = '<i class="fas fa-user"></i>';
+                        deleteBtn.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading profile image:', error);
+                    profileImage.innerHTML = '<i class="fas fa-user"></i>';
+                    deleteBtn.style.display = 'none';
+                });
+            }
+            
+            // Load profile image on page load
+            loadProfileImage();
+            
+            // Upload button click
+            uploadBtn.addEventListener('click', function() {
+                uploadForm.style.display = uploadForm.style.display === 'none' ? 'block' : 'none';
+            });
+            
+            // Skip button click
+            skipBtn.addEventListener('click', function() {
+                // Add a subtle animation before redirecting
+                skipBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    // Redirect to main page (video page)
+                    window.location.href = 'http://localhost:8080/coursespage'; // Change this to your actual main page URL
+                }, 150);
+            });
+            
+            // File input change
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    fileName.textContent = this.files[0].name;
+                } else {
+                    fileName.textContent = 'No file selected';
+                }
+            });
+            
+            // Form submission
+            uploadForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!fileInput.files || !fileInput.files[0]) {
+                    showAlert('Please select an image to upload.', 'danger');
+                    return;
+                }
+                
+                const file = fileInput.files[0];
+                
+                // Validate file size (1MB max)
+                if (file.size > 1048576) {
+                    showAlert('File size must be less than 1MB.', 'danger');
+                    return;
+                }
+                
+                // Validate file type
+                if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
+                    showAlert('Only PNG and JPEG images are allowed.', 'danger');
+                    return;
+                }
+                
+                // Disable button during upload
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner"></span> Uploading...';
+                
+                // Create form data
+                const formData = new FormData();
+                formData.append('image', file);
+                
+                // Send to backend
+                fetch('/userprofile', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'Upload failed');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Success
+                    showAlert('Profile image updated successfully!', 'success');
+                    
+                    // Update profile image
+                    profileImage.innerHTML = `<img src="${data.url}" alt="Profile Image">`;
+                    deleteBtn.style.display = 'inline-block';
+                    
+                    // Reset form
+                    uploadForm.style.display = 'none';
+                    fileInput.value = '';
+                    fileName.textContent = 'No file selected';
+                    
+                    // Change skip button to continue after successful upload
+                    skipBtn.innerHTML = '<i class="fas fa-check"></i> Continue';
+                })
+                .catch(error => {
+                    showAlert(error.message, 'danger');
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Image';
+                });
+            });
+            
+            // Delete button click
+            deleteBtn.addEventListener('click', function() {
+                if (!confirm('Are you sure you want to delete your profile image?')) {
+                    return;
+                }
+                
+                // Disable button during deletion
+                deleteBtn.disabled = true;
+                deleteBtn.innerHTML = '<span class="spinner"></span> Deleting...';
+                
+                // Send to backend
+                fetch('/deleteprofile', {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'Delete failed');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Success
+                    showAlert(data.message || 'Image deleted successfully', 'success');
+                    
+                    // Update profile image
+                    profileImage.innerHTML = '<i class="fas fa-user"></i>';
+                    deleteBtn.style.display = 'none';
+                    
+                    // Reset skip button to original state after deletion
+                    skipBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Skip';
+                })
+                .catch(error => {
+                    showAlert(error.message, 'danger');
+                })
+                .finally(() => {
+                    deleteBtn.disabled = false;
+                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

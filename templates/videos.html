@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KLMS - Course Videos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5dade2;
+            --primary-dark: #3498db;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #c7ddf7, #e3f0ff);
+            color: var(--dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--white);
+            box-shadow: var(--box-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 2rem;
+            animation: rotateIn 1s ease-out;
+        }
+
+        @keyframes rotateIn {
+            from {
+                transform: rotate(-30deg);
+                opacity: 0;
+            }
+            to {
+                transform: rotate(0);
+                opacity: 1;
+            }
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .nav-links li {
+            margin-left: 20px;
+        }
+
+        .nav-links a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 40px 0;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .page-title-container {
+            flex: 1;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .page-subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        .page-action {
+            margin-left: 20px;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            color: white;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
+            color: white;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        /* Content Layout */
+        .content-wrapper {
+            display: flex;
+            gap: 30px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Video Section */
+        .video-section {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .video-player {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .video-player video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-player-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            height: 100%;
+            width: 100%;
+        }
+
+        .video-player-placeholder i {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            color: var(--light-gray);
+        }
+
+        .video-info {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+        }
+
+        .video-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--dark);
+            border-left: 4px solid var(--primary);
+            padding-left: 15px;
+        }
+
+        .video-description {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        /* Video List */
+        .video-list-section {
+            flex: 1;
+        }
+
+        .video-list-container {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .video-list-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--dark);
+            border-bottom: 1px solid var(--light-gray);
+            padding-bottom: 10px;
+        }
+
+        .video-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .video-item {
+            display: flex;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .video-item:hover {
+            background-color: var(--light);
+            border-color: var(--primary);
+        }
+
+        .video-item.active {
+            background-color: rgba(93, 173, 226, 0.1);
+            border-color: var(--primary);
+        }
+
+        .video-thumbnail {
+            width: 120px;
+            height: 80px;
+            background-color: var(--light-gray);
+            border-radius: var(--border-radius);
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-thumbnail i {
+            position: absolute;
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .video-details {
+            flex: 1;
+        }
+
+        .video-item-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            box-orient: vertical;
+        }
+
+        .video-item-description {
+            font-size: 0.9rem;
+            color: var(--gray);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            box-orient: vertical;
+        }
+
+        /* Progress indicator */
+        .progress-indicator {
+            margin-top: 15px;
+            background-color: var(--light-gray);
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* Loading spinner */
+        .spinner-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(93, 173, 226, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--light-gray);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--gray);
+        }
+
+        .empty-state p {
+            color: var(--gray);
+        }
+
+        /* Alert */
+        .alert {
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                transform: translateX(-5px);
+            }
+            20%, 40%, 60%, 80% {
+                transform: translateX(5px);
+            }
+        }
+
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(40, 167, 69, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .content-wrapper {
+                flex-direction: column;
+            }
+            
+            .video-list-container {
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .page-action {
+                margin-left: 0;
+                margin-top: 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header-container {
+                flex-direction: column;
+            }
+
+            .nav-links {
+                margin-top: 15px;
+            }
+
+            .nav-links li {
+                margin: 0 10px;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .video-item {
+                flex-direction: column;
+            }
+            
+            .video-thumbnail {
+                width: 100%;
+                height: 150px;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>KLMS</span>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="http://localhost:8080/coursespage">Courses</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="http://localhost:8080/logout">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <div class="page-title-container">
+                    <h1 class="page-title">Course Videos</h1>
+                    <p class="page-subtitle">Watch and learn from our course materials</p>
+                </div>
+                <div class="page-action">
+                    <a href="http://localhost:8080/coursespage" class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i> Back to Courses
+                    </a>
+                </div>
+            </div>
+    
+            <div id="alert-container"></div>
+    
+            <div class="content-wrapper">
+                <div class="video-section">
+                    <div class="video-player" id="video-player">
+                        <div class="video-player-placeholder">
+                            <i class="fas fa-play-circle"></i>
+                            <p>Select a video to play</p>
+                        </div>
+                    </div>
+                    
+                    <div class="video-info" id="video-info" style="display: none;">
+                        <h2 class="video-title" id="current-video-title">Video Title</h2>
+                        <p class="video-description" id="current-video-description">Video description will appear here</p>
+                        
+                        <div class="progress-indicator">
+                            <div class="progress-bar" id="progress-bar"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="progress-text">0% Complete</span>
+                            <span id="progress-count">0/0 videos</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-list-section">
+                    <div class="video-list-container">
+                        <h3 class="video-list-title">Course Videos</h3>
+                        <div id="video-list" class="video-list"></div>
+                        
+                        <div id="loading" class="spinner-container">
+                            <div class="spinner"></div>
+                        </div>
+                        
+                        <div id="empty-state" class="empty-state" style="display: none;">
+                            <i class="fas fa-video-slash"></i>
+                            <h3>No Videos Available</h3>
+                            <p>There are currently no videos for this course.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const videoPlayer = document.getElementById('video-player');
+        const videoInfo = document.getElementById('video-info');
+        const currentVideoTitle = document.getElementById('current-video-title');
+        const currentVideoDescription = document.getElementById('current-video-description');
+        const videoList = document.getElementById('video-list');
+        const loadingSpinner = document.getElementById('loading');
+        const emptyState = document.getElementById('empty-state');
+        const alertContainer = document.getElementById('alert-container');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const progressCount = document.getElementById('progress-count');
+    
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = urlParams.get('id');
+    
+        // Track watched videos
+        const watchedVideos = new Set();
+    
+        function showAlert(message, type) {
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => { alertContainer.innerHTML = ''; }, 5000);
+        }
+    
+        function updateProgressUI(progress, total) {
+            const percentage = total > 0 ? Math.round((progress / total) * 100) : 0;
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${percentage}% Complete`;
+            progressCount.textContent = `${progress}/${total} videos`;
+        }
+    
+        function loadVideos() {
+            if (!courseId) {
+                showAlert('Course ID is missing. Please go back to the courses page.', 'danger');
+                return;
+            }
+    
+            loadingSpinner.style.display = 'flex';
+            videoList.innerHTML = '';
+            emptyState.style.display = 'none';
+    
+            fetch(`/videos?id=${courseId}`, { method: 'GET', credentials: 'include' })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to load videos');
+                return res.json();
+            })
+            .then(videos => {
+                loadingSpinner.style.display = 'none';
+                if (videos.length === 0) {
+                    emptyState.style.display = 'block';
+                    return;
+                }
+    
+                videos.forEach((video, index) => {
+                    // Assign a unique ID for each video
+                    video.id = video.VideoID; // ensure backend sends a unique ID field
+    
+                    const videoItem = document.createElement('div');
+                    videoItem.className = 'video-item';
+                    if (index === 0) videoItem.classList.add('active');
+    
+                    videoItem.innerHTML = `
+                        <div class="video-thumbnail">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <div class="video-details">
+                            <div class="video-item-title">${video.Title}</div>
+                            <div class="video-item-description">${video.Description}</div>
+                        </div>
+                    `;
+    
+                    videoItem.addEventListener('click', () => playVideo(video, videoItem));
+                    videoList.appendChild(videoItem);
+                });
+    
+                // Auto-play first video
+                if (videos.length > 0) playVideo(videos[0], videoList.firstChild);
+            })
+            .catch(err => {
+                console.error(err);
+                loadingSpinner.style.display = 'none';
+                showAlert('Failed to load videos.', 'danger');
+            });
+        }
+       
+        function playVideo(video, videoItemElement) {
+            // Highlight active video
+            document.querySelectorAll('.video-item').forEach(item => item.classList.remove('active'));
+            videoItemElement.classList.add('active');
+
+            // Load the video
+            videoPlayer.innerHTML = `<video id="course-video" controls autoplay>
+                                        <source src="${video.Videourl}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                     </video>`;
+
+            const vid = document.getElementById('course-video');
+
+            currentVideoTitle.textContent = video.Title;
+            currentVideoDescription.textContent = video.Description;
+            videoInfo.style.display = 'block';
+
+            // On video end
+            vid.addEventListener('ended', () => {
+                if (!watchedVideos.has(video.Title)) {
+                    watchedVideos.add(video.Title); // Mark as watched
+
+                    // Send progress update to backend
+                    fetch(`/progress?course=${courseId}&video=${encodeURIComponent(video.Title)}`, { 
+                        method: 'POST', 
+                        credentials: 'include' 
+                    })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Failed to update progress');
+                        return res.json();
+                    })
+                    .then(data => {
+                        updateProgressUI(data.progress, data.total);
+                        showAlert(`Progress: ${data.progress}/${data.total} videos. Status: ${data.status}`, 'success');
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        showAlert('Failed to update progress.', 'danger');
+                    });
+                }
+            });
+        }
+        
+        loadVideos();
+    });
+    </script>
+    
+</body>
+</html>

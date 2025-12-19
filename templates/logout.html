@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout Confirmation - KLMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5dade2;
+            --primary-dark: #3498db;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #f0f4f8;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #c7ddf7, #e3f0ff);
+            color: var(--dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--white);
+            box-shadow: var(--box-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 2rem;
+            animation: rotateIn 1s ease-out;
+        }
+
+        @keyframes rotateIn {
+            from {
+                transform: rotate(-30deg);
+                opacity: 0;
+            }
+            to {
+                transform: rotate(0);
+                opacity: 1;
+            }
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .nav-links li {
+            margin-left: 20px;
+        }
+
+        .nav-links a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 0;
+        }
+
+        .center-logo {
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .logo-container {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto;
+            position: relative;
+            border-radius: 50%;
+            background: white;
+            padding: 8px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+        }
+
+        .logout-container {
+            width: 100%;
+            max-width: 450px;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .logo h2 {
+            margin-top: 15px;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 1.8rem;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .confirmation {
+            display: block;
+            animation: fadeIn 1.4s ease-out;
+        }
+
+        .confirmation h3 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+        }
+
+        .confirmation p {
+            color: var(--gray);
+            margin-bottom: 30px;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .thank-you {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .thank-you h3 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .thank-you p {
+            color: var(--gray);
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        .thank-you .icon {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            line-height: 100px;
+            border-radius: 50%;
+            background: rgba(93, 173, 226, 0.1);
+            box-shadow: 0 8px 15px rgba(93, 173, 226, 0.2);
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            min-width: 120px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-cancel {
+            background-color: var(--light-gray);
+            color: var(--gray);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .btn-cancel:hover {
+            background-color: #d0d0d0;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-logout {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 8px rgba(93, 173, 226, 0.3);
+        }
+
+        .btn-logout:hover {
+            background: linear-gradient(135deg, #3a7bc8, #083363);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(93, 173, 226, 0.4);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Background decorative elements */
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 0;
+        }
+        
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -100px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            left: -50px;
+            background: rgba(255, 255, 255, 0.07);
+        }
+        
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            top: 50%;
+            left: 10%;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logout-container {
+                padding: 30px 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header-container {
+                flex-direction: column;
+            }
+
+            .nav-links {
+                margin-top: 15px;
+            }
+
+            .nav-links li {
+                margin: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background decorative elements -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
+    
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>KLMS</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Centered Logo -->
+        <div class="center-logo" id="centerLogo">
+            <div class="logo-container">
+                <img src="/static/images/logo.png" alt="KLMS Logo">
+            </div>
+        </div>
+        
+        <div class="logout-container">
+            <!-- Logout Confirmation -->
+            <div class="confirmation" id="confirmation">
+                <h3>Logout Confirmation</h3>
+                <p>Are you sure you want to logout?</p>
+                <div class="buttons">
+                    <button class="btn btn-cancel" id="cancelBtn">Cancel</button>
+                    <button class="btn btn-logout" id="logoutBtn">Logout</button>
+                </div>
+            </div>
+            
+            <!-- Thank You Message -->
+            <div class="thank-you" id="thankYou">
+                <div class="icon">✓</div>
+                <h3>Thank You!</h3>
+                <p>You have been successfully logged out. We appreciate your visit and look forward to seeing you again soon.</p>
+                <div class="buttons">
+                    <button class="btn btn-logout" id="redirectBtn">Return to Login</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmation = document.getElementById('confirmation');
+            const thankYou = document.getElementById('thankYou');
+            const centerLogo = document.getElementById('centerLogo');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const redirectBtn = document.getElementById('redirectBtn');
+            
+            // Cancel button - go back to previous page
+            cancelBtn.addEventListener('click', function() {
+                window.history.back();
+            });
+            
+            // Logout button - perform logout
+            logoutBtn.addEventListener('click', function() {
+                // Show loading state
+                logoutBtn.innerHTML = '<span class="loading"></span> Logging out...';
+                logoutBtn.disabled = true;
+                
+                // Make the actual API call to logout
+                fetch('/logout', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    // Parse the JSON response from the server
+                    return response.json().then(data => {
+                        // Check if the response was successful
+                        if (response.ok && data.status === 'success') {
+                            // Hide the logo
+                            centerLogo.style.display = 'none';
+                            
+                            // Hide confirmation and show thank you message
+                            confirmation.style.display = 'none';
+                            thankYou.style.display = 'block';
+                        } else {
+                            // Show error message from server
+                            throw new Error(data.message || 'Logout failed');
+                        }
+                    });
+                })
+                .catch(error => {
+                    // Handle any errors during the logout process
+                    console.error('Logout error:', error);
+                    alert(error.message || 'An error occurred during logout. Please try again.');
+                    
+                    // Reset the logout button state
+                    logoutBtn.innerHTML = 'Logout';
+                    logoutBtn.disabled = false;
+                });
+            });
+            
+            // Redirect button - go to login page
+            redirectBtn.addEventListener('click', function() {
+                window.location.href = '/login'; // Adjust to your login page URL
+            });
+        });
+    </script>
+</body>
+</html>
