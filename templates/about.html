@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - KLMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5dade2;
+            --primary-dark: #3498db;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #f0f4f8;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #c7ddf7, #e3f0ff);
+            color: var(--dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--white);
+            box-shadow: var(--box-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 2rem;
+            animation: rotateIn 1s ease-out;
+        }
+
+        @keyframes rotateIn {
+            from {
+                transform: rotate(-30deg);
+                opacity: 0;
+            }
+            to {
+                transform: rotate(0);
+                opacity: 1;
+            }
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .nav-links li {
+            margin-left: 20px;
+        }
+
+        .nav-links a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 40px 0;
+        }
+
+        /* Hero Section - Updated to fit image properly */
+        .about-hero {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 40px;
+            height: 60vh;
+            max-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(21, 67, 96, 0.7), rgba(26, 82, 118, 0.6));
+            z-index: 2;
+            border-radius: 20px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .about-hero h1 {
+            font-size: 3.5rem;
+            color: #ffffff;
+            margin-bottom: 20px;
+            text-shadow: 0 3px 5px rgba(0, 0, 0, 0.7);
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .about-hero p {
+            font-size: 1.4rem;
+            color: #f0f0f0;
+            max-width: 700px;
+            margin: 0 auto;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+            line-height: 1.6;
+        }
+
+        /* About Content Section */
+        .about-content {
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
+            padding: 50px;
+            margin-bottom: 40px;
+            box-shadow: var(--box-shadow);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .about-content h2 {
+            font-size: 2.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .about-content p {
+            font-size: 1.1rem;
+            color: var(--gray);
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        /* Mission & Vision Section */
+        .mission-vision {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .mission-card, .vision-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 40px;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            transition: var(--transition);
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .mission-card:hover, .vision-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            border-radius: 50%;
+            background: rgba(93, 173, 226, 0.1);
+        }
+
+        .mission-card h3, .vision-card h3 {
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+        }
+
+        .mission-card p, .vision-card p {
+            color: var(--gray);
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        /* Benefits Section */
+        .benefits {
+            margin-bottom: 40px;
+        }
+
+        .benefits h2 {
+            font-size: 2.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .benefit-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            transition: var(--transition);
+            animation: fadeIn 1.6s ease-out;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .benefit-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .benefit-card h4 {
+            font-size: 1.3rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .benefit-card p {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        /* Team Section */
+        .team {
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            padding: 50px;
+            margin-bottom: 40px;
+            box-shadow: var(--box-shadow);
+            animation: fadeIn 1.8s ease-out;
+        }
+
+        .team h2 {
+            font-size: 2.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .team-member {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .team-member:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .member-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto 20px;
+            border: 4px solid var(--primary);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .member-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .team-member:hover .member-avatar img {
+            transform: scale(1.05);
+        }
+
+        .team-member h4 {
+            font-size: 1.3rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .team-member .position {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .team-member p {
+            color: var(--gray);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(93, 173, 226, 0.1);
+            color: var(--primary);
+            margin: 0 5px;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 60px 0;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(93, 173, 226, 0.1), rgba(52, 152, 219, 0.2));
+            border-radius: 20px;
+            margin-bottom: 40px;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+        }
+
+        .cta p {
+            font-size: 1.3rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 16px 36px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #3a7bc8, #083363);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: var(--white);
+            padding: 30px 0;
+            margin-top: auto;
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .footer-logo i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+
+        .footer-links {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .social-links-footer {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-links-footer a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            transition: var(--transition);
+        }
+
+        .social-links-footer a:hover {
+            background-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            width: 100%;
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* Background decorative elements */
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 0;
+        }
+        
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -100px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            left: -50px;
+            background: rgba(255, 255, 255, 0.07);
+        }
+        
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            top: 50%;
+            left: 10%;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .about-hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            .about-hero p {
+                font-size: 1.2rem;
+            }
+            
+            .benefits-grid, .team-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .about-hero {
+                height: 50vh;
+                max-height: 450px;
+            }
+            
+            .about-hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .about-hero p {
+                font-size: 1.1rem;
+            }
+            
+            .about-content {
+                padding: 40px 30px;
+            }
+            
+            .mission-card, .vision-card {
+                padding: 30px 20px;
+            }
+            
+            .team {
+                padding: 40px 30px;
+            }
+            
+            .section-title h2, .cta h2 {
+                font-size: 2rem;
+            }
+            
+            .section-title p, .cta p {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header-container {
+                flex-direction: column;
+            }
+
+            .nav-links {
+                margin-top: 15px;
+            }
+
+            .nav-links li {
+                margin: 0 10px;
+            }
+            
+            .about-content {
+                padding: 30px 20px;
+            }
+            
+            .mission-vision {
+                grid-template-columns: 1fr;
+            }
+            
+            .team {
+                padding: 30px 20px;
+            }
+            
+            .footer-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            .footer-links {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .social-links-footer {
+                order: 2;
+            }
+            
+            .footer-logo {
+                order: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background decorative elements -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
+    
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>KLMS</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/indexpage">Home</a></li>
+                <li><a href="/aboutpage" class="active">About</a></li>
+                <li><a href="/signuppage">Signup</a></li>
+                <li><a href="/loginpage">Login</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- About Hero Section - Updated to fit image properly -->
+        <section class="about-hero">
+            <img src="/static/images/about.png" alt="Kamaraj College of Engineering & Technology" class="hero-image">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1>About KLMS</h1>
+                <p>Empowering Education Through Innovative Technology</p>
+            </div>
+        </section>
+
+        <!-- About Content Section -->
+        <section class="about-content">
+            <div class="container">
+                <h2>Our Platform</h2>
+                <p>Kamaraj Learning Management System (KLMS) is a comprehensive digital learning platform designed to revolutionize the educational experience at Kamaraj College of Engineering & Technology. Developed with the vision to create a seamless, interactive, and engaging learning environment, KLMS bridges the gap between traditional classroom education and modern digital learning methodologies.</p>
+                <p>Our platform is built on the foundation of accessibility, innovation, and user-centric design. KLMS provides students and faculty with a unified ecosystem where learning resources, assessment tools, and collaborative features converge to create a holistic educational experience. Whether you're a student accessing course materials, a faculty member managing assessments, or an administrator overseeing the academic workflow, KLMS is designed to meet your needs efficiently and effectively.</p>
+                <p>Since its inception, KLMS has been continuously evolving, incorporating feedback from our user community and integrating the latest advancements in educational technology. Our commitment is to provide a platform that not only meets the current educational demands but also anticipates and adapts to the future needs of digital learning.</p>
+            </div>
+        </section>
+
+        <!-- Mission & Vision Section -->
+        <section class="mission-vision">
+            <div class="container">
+                <div class="mission-card">
+                    <div class="card-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3>Our Mission</h3>
+                    <p>To enhance the educational experience through technology by providing an intuitive, accessible, and comprehensive learning management system that empowers students and faculty to achieve academic excellence.</p>
+                </div>
+                <div class="vision-card">
+                    <div class="card-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3>Our Vision</h3>
+                    <p>To be the leading learning management platform that transforms traditional education into a dynamic, interactive, and personalized learning journey for every student at Kamaraj College of Engineering & Technology.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefits Section -->
+        <section class="benefits">
+            <div class="container">
+                <h2>Benefits of KLMS</h2>
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <h4>For Students</h4>
+                        <p>Access course materials anytime, track your progress, collaborate with peers, and receive personalized feedback to enhance your learning experience.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <h4>For Faculty</h4>
+                        <p>Streamline course management, automate administrative tasks, gain insights into student performance, and focus more on teaching and mentoring.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <h4>For Administration</h4>
+                        <p>Centralized management of academic processes, data-driven decision making, and improved institutional efficiency and effectiveness.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h4>For the Institution</h4>
+                        <p>Enhanced reputation through innovative educational technology, improved student outcomes, and a future-ready learning ecosystem.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team Section -->
+        <section class="team">
+            <div class="container">
+                <h2>Our Development Team</h2>
+                <div class="team-grid">
+                    <div class="team-member">
+                        <div class="member-avatar">
+                            <img src="" alt="Dr. Ravi Kumar">
+                        </div>
+                        <h4>John Githiyon.E</h4>
+                        <div class="position">Backend Developer</div>
+                        <p>John Githiyon handles the entire backend development of KLMS, ensuring robust server architecture, efficient database management, and seamless API integration.</p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-avatar">
+                            <img src="" alt="Sita Patel">
+                        </div>
+                        <h4>Kanagalekshmi.B</h4>
+                        <div class="position">Frontend Developer</div>
+                        <p>Kanagalekshmi works for the frontend development, creating intuitive user interfaces and ensuring responsive design across all devices.</p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-avatar">
+                            <img src="" alt="Dr. Meera Joshi">
+                        </div>
+                        <h4>S.A.Hemamalini</h4>
+                        <div class="position">Backend Developer</div>
+                        <p>Hemamalini works for certificate generation, developing automated systems to create and manage digital certificates for course completion.</p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-avatar">
+                            <img src="" alt="Amit Sharma">
+                        </div>
+                        <h4>Velavan.K</h4>
+                        <div class="position">Backend Developer</div>
+                        <p>Velavan works for video progress tracking, implementing systems to monitor and report student engagement with video learning materials.</p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta">
+            <div class="container">
+                <h2>Experience the Future of Learning</h2>
+                <p>Join thousands of students and faculty who are already transforming their educational experience with KLMS.</p>
+                <a href="/loginpage" class="btn btn-primary">Get Started Now</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+   <footer>
+        <div class="footer-container">
+            <div class="footer-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>KLMS</span>
+            </div>
+            <div class="social-links-footer">
+                <a href="https://www.facebook.com/kamarajeng#"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.youtube.com/@Kamarajeng"><i class="fab fa-youtube"></i></a>
+                <a href="https://in.linkedin.com/school/kamarajeng/"><i class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.instagram.com/kamarajeng/?hl=en"><i class="fab fa-instagram"></i></a>
+            </div>
+            <div class="copyright">
+                &copy; 2025 Kamaraj Learning Management System. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
