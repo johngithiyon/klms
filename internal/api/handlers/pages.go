@@ -40,3 +40,11 @@ func Logoutpage(w http.ResponseWriter, r *http.Request) {
 func Dashboardpage(w http.ResponseWriter, r *http.Request) {
 	Render(w,"dashboard.html")
 }
+
+func Indexpage(w http.ResponseWriter, r *http.Request) {
+	 Render(w,"index.html")
+}
+
+func Aboutpage(w http.ResponseWriter, r *http.Request) {
+	Render(w,"about.html")
+}
