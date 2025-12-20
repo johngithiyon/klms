@@ -464,7 +464,7 @@
                 
                 // Make the actual API call to logout
                 fetch('/logout', {
-                    method: 'POST',
+                    method: 'GET',
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json'
@@ -500,7 +500,7 @@
             
             // Redirect button - go to login page
             redirectBtn.addEventListener('click', function() {
-                window.location.href = '/login'; // Adjust to your login page URL
+                window.location.href = '/loginpage'; // Adjust to your login page URL
             });
         });
     </script>
