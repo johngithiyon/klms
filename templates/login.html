@@ -521,10 +521,10 @@
                 <span>KLMS</span>
             </div>
             <ul class="nav-links">
-                <li><a href="home.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
+                <li><a href="/">Home</a></li>
+                <li><a href="/aboutpage">About</a></li>
                 <li><a href="contact.html">Contact</a></li>
-                <li><a href="signup.html">Sign Up</a></li>
+                <li><a href="/signuppage">Sign Up</a></li>
             </ul>
         </div>
     </header>
@@ -572,7 +572,7 @@
                     <button type="submit" class="btn" id="login-btn">SUBMIT</button>
                     
                     <div class="form-footer">
-                        Don't have account? <a href="http://localhost:8080/signuppage">Create new account</a>
+                        Don't have account? <a href="/signuppage">Create new account</a>
                     </div>
                 </form>
             </div>
@@ -608,7 +608,7 @@
                     const cookie = cookies[i].trim();
                     if (cookie.startsWith('session-id=')) {
                         // User has a session, redirect to dashboard
-                        window.location.href = 'http://localhost:8080/video';
+                        window.location.href = '/coursespage';
                         return;
                     }
                 }
@@ -667,7 +667,7 @@
                         
                         // Redirect to dashboard after a short delay
                         setTimeout(() => {
-                            window.location.href = 'http://localhost:8080/userprofilepage';
+                            window.location.href = '/userprofilepage';
                         }, 1500);
                     } else {
                         // Handle error response
