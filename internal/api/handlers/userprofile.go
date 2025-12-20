@@ -23,7 +23,7 @@ func Userprofile(w http.ResponseWriter, r *http.Request) {
  
 	        if r.Method == http.MethodPost {
 
-	     
+			 name := r.FormValue("name")
 			Imagefile,fileheader,Imageerr :=  r.FormFile("image")
 
 			if Imageerr != nil {
@@ -46,8 +46,6 @@ func Userprofile(w http.ResponseWriter, r *http.Request) {
 			   log.Println("Content type error")
 			   return 
 		   }
-
-		   name := r.FormValue("name")
 
 		   sessionid,cokkierr := r.Cookie("session-id")
 
@@ -101,9 +99,14 @@ func Userprofile(w http.ResponseWriter, r *http.Request) {
 
 		    minioclient := minio.Minio 
 
-		   minioclient.PutObject(context.Background(),"klms-profiles",rewritefilename,Imagefile,fileheader.Size,sdk.PutObjectOptions{
+		_,putobjerr :=   minioclient.PutObject(context.Background(),"klms-profiles",rewritefilename,Imagefile,fileheader.Size,sdk.PutObjectOptions{
 			       ContentType: contenttype,
 		})
+
+		if putobjerr != nil {
+			responses.JsonError(w,"Internal Server Error")
+			return
+		}
 
 	    Imagefile.Close()
 
@@ -119,7 +122,7 @@ func Userprofile(w http.ResponseWriter, r *http.Request) {
 
 	  //presigned url for user access 
 
-	   url , urlerr := minioclient.PresignedGetObject(context.Background(),"klms-profiles",rewritefilename,5*time.Minute,nil)
+	   url , urlerr := minioclient.PresignedGetObject(context.Background(),"klms-profiles",rewritefilename,40*time.Minute,nil)
 
 
 	   if urlerr != nil {
@@ -130,7 +133,6 @@ func Userprofile(w http.ResponseWriter, r *http.Request) {
 
 	   json.NewEncoder(w).Encode(map[string]string {
 		       "status":"success",
-		       "name":username,
 		       "url":url.String(),
 	   })
    }  
