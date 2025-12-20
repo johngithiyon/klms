@@ -487,10 +487,10 @@
                 <span>KLMS</span>
             </div>
             <ul class="nav-links">
-                <li><a href="home.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
+                <li><a href="/">Home</a></li>
+                <li><a href="/aboutpage">About</a></li>
                 <li><a href="contact.html">Contact</a></li>
-                <li><a href="login.html">Login</a></li>
+                <li><a href="/loginpage">Login</a></li>
             </ul>
         </div>
     </header>
@@ -544,7 +544,7 @@
                     <button type="submit" class="btn" id="signup-btn">Sign Up</button>
                     
                     <div class="form-footer">
-                        Already have an account? <a href="http://localhost:8080/loginpage">Login</a>
+                        Already have an account? <a href="/loginpage">Login</a>
                     </div>
                 </form>
             </div>
@@ -716,7 +716,7 @@
 
                             // ✅ REDIRECT AFTER SUCCESS (ADD ONLY THIS)
                             setTimeout(() => {
-                                window.location.href = "http://localhost:8080/otpverifypage";   // change page name if needed
+                                window.location.href = "/otpverifypage";   // change page name if needed
                             }, 2000);
                         }
 
