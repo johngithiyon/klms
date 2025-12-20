@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"klms/internal/api/handlers/responses"
 	"klms/internal/api/services"
 	"klms/internal/api/storage/postgres"
@@ -47,7 +46,7 @@ func ValidEmail(w http.ResponseWriter,r *http.Request) {
 	}
 
 
-	status := redis.Redis.Set(context.Background(),otp,email,5*time.Minute)
+	status := redis.Redis.Set(r.Context(),otp,email,5*time.Minute)
   
 
 	statuserr := status.Err()
@@ -69,7 +68,7 @@ func ValidEmail(w http.ResponseWriter,r *http.Request) {
 		SameSite: http.SameSiteStrictMode,
 	})
 
-	emailstatus := redis.Redis.Set(context.Background(),id,email,5*time.Minute)
+	emailstatus := redis.Redis.Set(r.Context(),id,email,5*time.Minute)
 
 	emailstatuserr := emailstatus.Err()
 

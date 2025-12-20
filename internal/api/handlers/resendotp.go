@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"klms/internal/api/handlers/responses"
 	"klms/internal/api/services"
 	"klms/internal/api/storage/redis"
@@ -17,7 +16,7 @@ func Resendotp(w http.ResponseWriter, r *http.Request) {
 		return 
 	}
 
-	email,emailfetcherr := redis.Redis.Get(context.Background(),id.Value).Result()
+	email,emailfetcherr := redis.Redis.Get(r.Context(),id.Value).Result()
 
 	if emailfetcherr != nil {
 		 responses.JsonError(w,"Internal Server Error")

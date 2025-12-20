@@ -1,7 +1,6 @@
 package handlers
 
 import (
-    "context"
     "database/sql"
     "encoding/json"
     "klms/internal/api/handlers/responses"
@@ -28,7 +27,7 @@ func Progress(w http.ResponseWriter, r *http.Request) {
     }
 
     // Get username from Redis
-    username, err := redis.Redis.Get(context.Background(), sessionid.Value).Result()
+    username, err := redis.Redis.Get(r.Context(), sessionid.Value).Result()
     if err != nil {
         log.Println("Redis error", err)
         responses.JsonError(w, "Internal Server Error")

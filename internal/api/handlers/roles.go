@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"klms/internal/api/handlers/responses"
 	"klms/internal/api/storage/postgres"
@@ -21,7 +20,7 @@ func Roles(w http.ResponseWriter,r *http.Request) {
 		 return
 	}
 
-	username,rediserr := redis.Redis.Get(context.Background(),sessionid.Value).Result()
+	username,rediserr := redis.Redis.Get(r.Context(),sessionid.Value).Result()
 
 	if rediserr != nil {
 		  responses.JsonError(w,"Invalid Session Id")

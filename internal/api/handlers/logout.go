@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"klms/internal/api/errors"
 	"klms/internal/api/handlers/responses"
 	"klms/internal/api/storage/minio"
@@ -24,7 +23,7 @@ func Logout(w http.ResponseWriter,r *http.Request) {
 		return 
 	}
 
-	username,rediserr  := redis.Redis.Get(context.Background(),sessionid.Value).Result()
+	username,rediserr  := redis.Redis.Get(r.Context(),sessionid.Value).Result()
 
 	if rediserr != nil {
 		 responses.JsonError(w,"Internal Server Error")
@@ -46,8 +45,13 @@ func Logout(w http.ResponseWriter,r *http.Request) {
 
 	if profileimage != "" {
 
-		      minio.Minio.RemoveObject(context.Background(),"klms-profiles",profileimage,sdk.RemoveObjectOptions{})
-	}
+		    removerr :=   minio.Minio.RemoveObject(r.Context(),"klms-profiles",profileimage,sdk.RemoveObjectOptions{})
+	
+	        if removerr != nil {
+				responses.JsonError(w,"Internal Server Error")
+				return 
+			}
+		}
 
 
 	deletequery := "delete from users where username=$1"

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"klms/internal/api/services"
 	"klms/internal/api/storage/postgres"
 	"klms/internal/api/storage/redis"
@@ -54,7 +53,7 @@ func Loginhandler(w http.ResponseWriter, r *http.Request) {
 
 		     redisconn := redis.Redis
 
-			 redisconn.Set(context.Background(),id,username,0)
+			 redisconn.Set(r.Context(),id,username,0)
 
 			 resp.JsonSucess(w,"Login Successful")
 			 return

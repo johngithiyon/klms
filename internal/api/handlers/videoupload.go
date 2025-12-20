@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"klms/internal/api/errors"
 	"klms/internal/api/handlers/responses"
@@ -56,7 +55,7 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 		  var Username string
 		  var rediserr error
 
-		   Username,rediserr = redis.Redis.Get(context.Background(),sessionid.Value).Result()
+		   Username,rediserr = redis.Redis.Get(r.Context(),sessionid.Value).Result()
 
 		  if rediserr != nil {
 			   log.Println(errors.Errfetch)
@@ -111,7 +110,7 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 				objname := coursename+"/"+file[i].Filename
 
              
-		    	_,uploaderr  :=  minioclient.PutObject(context.Background(),"klms-coursevideos",objname,filereader,file[i].Size,sdk.PutObjectOptions{
+		    	_,uploaderr  :=  minioclient.PutObject(r.Context(),"klms-coursevideos",objname,filereader,file[i].Size,sdk.PutObjectOptions{
 				     ContentType: file[i].Header.Get("Content-Type"),
 			  })	
 

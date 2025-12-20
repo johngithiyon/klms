@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"klms/internal/api/errors"
 	"klms/internal/api/handlers/responses"
@@ -67,7 +66,7 @@ func Userprofile(w http.ResponseWriter, r *http.Request) {
 		   redisconn := redis.Redis
 
 
-           username,rediserr:= redisconn.Get(context.Background(),sessionid.Value).Result()
+           username,rediserr:= redisconn.Get(r.Context(),sessionid.Value).Result()
 
 		   if rediserr != nil {
 			resp.JsonError(w,"Invalid Session Id")
@@ -99,7 +98,7 @@ func Userprofile(w http.ResponseWriter, r *http.Request) {
 
 		    minioclient := minio.Minio 
 
-		_,putobjerr :=   minioclient.PutObject(context.Background(),"klms-profiles",rewritefilename,Imagefile,fileheader.Size,sdk.PutObjectOptions{
+		_,putobjerr :=   minioclient.PutObject(r.Context(),"klms-profiles",rewritefilename,Imagefile,fileheader.Size,sdk.PutObjectOptions{
 			       ContentType: contenttype,
 		})
 
@@ -122,7 +121,7 @@ func Userprofile(w http.ResponseWriter, r *http.Request) {
 
 	  //presigned url for user access 
 
-	   url , urlerr := minioclient.PresignedGetObject(context.Background(),"klms-profiles",rewritefilename,40*time.Minute,nil)
+	   url , urlerr := minioclient.PresignedGetObject(r.Context(),"klms-profiles",rewritefilename,40*time.Minute,nil)
 
 
 	   if urlerr != nil {
@@ -152,7 +151,7 @@ func ProfileDelete(w http.ResponseWriter , r *http.Request) {
 		return 
 	}
 
-	username,_  := redisconn.Get(context.Background(),sessionid.Value).Result()
+	username,_  := redisconn.Get(r.Context(),sessionid.Value).Result()
 
 	 var  filename string 
 	   
@@ -162,7 +161,7 @@ func ProfileDelete(w http.ResponseWriter , r *http.Request) {
 
 	 rows.Scan(&filename) 
      
-	  minio.Minio.RemoveObject(context.Background(),"klms-profiles",filename,sdk.RemoveObjectOptions{})
+	  minio.Minio.RemoveObject(r.Context(),"klms-profiles",filename,sdk.RemoveObjectOptions{})
 
 
 	  deletequery := "UPDATE users SET profile_image = NULL WHERE username = $1;"

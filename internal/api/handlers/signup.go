@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"fmt"
 	"log"
 	reg "regexp"
@@ -118,7 +117,7 @@ func SignupHandler(w http.ResponseWriter,r *http.Request)  {
 
        conn  := redis.Redis
 	   
-	   hseterr := conn.HSet(context.Background(),id,signupdetails).Err()
+	   hseterr := conn.HSet(r.Context(),id,signupdetails).Err()
 
 	   if hseterr != nil {
 		    resp.JsonError(w,"Internal Server Error")
@@ -126,7 +125,7 @@ func SignupHandler(w http.ResponseWriter,r *http.Request)  {
 			return
 	   }
 
-	    conn.Expire(context.Background(),id,5*time.Minute)
+	    conn.Expire(r.Context(),id,5*time.Minute)
 
 	   resp.JsonSucess(w,"Signup Successful")
 

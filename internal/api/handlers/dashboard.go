@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"klms/internal/api/errors"
 	"klms/internal/api/handlers/responses"
@@ -28,7 +27,7 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 		return 
 	}
 
-	username,rediserr:= redis.Redis.Get(context.Background(),sessionid.Value).Result()
+	username,rediserr:= redis.Redis.Get(r.Context(),sessionid.Value).Result()
 
 	if rediserr != nil {
 	 responses.JsonError(w,"Invalid Session Id")
@@ -73,7 +72,7 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 			return 
 		}
 
-	   url , urlerr := minio.Minio.PresignedGetObject(context.Background(),"klms-profiles",imagename,5*time.Minute,nil)
+	   url , urlerr := minio.Minio.PresignedGetObject(r.Context(),"klms-profiles",imagename,5*time.Minute,nil)
 
 
 	   if urlerr != nil {

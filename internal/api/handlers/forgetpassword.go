@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"klms/internal/api/handlers/responses"
 	"klms/internal/api/storage/postgres"
 	"klms/internal/api/storage/redis"
@@ -42,7 +41,7 @@ func Forgetpassword(w http.ResponseWriter, r *http.Request) {
 	     responses.JsonError(w,"Internal Server Error")
    }
 
-		 email,emailfetcherr := redis.Redis.Get(context.Background(),id.Value).Result()
+		 email,emailfetcherr := redis.Redis.Get(r.Context(),id.Value).Result()
 
 		 if emailfetcherr != nil {
 			  responses.JsonError(w,"Internal Server Error")

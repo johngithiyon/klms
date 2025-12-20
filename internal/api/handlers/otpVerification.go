@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"klms/internal/api/errors"
 	resp "klms/internal/api/handlers/responses"
 	"klms/internal/api/storage/postgres"
@@ -27,7 +26,7 @@ func VerifyOtp(w http.ResponseWriter,r *http.Request) {
 
 		 redisconn := redis.Redis
 
-		 username,userfetcherr := redisconn.HGet(context.Background(),id.Value,"username").Result()
+		 username,userfetcherr := redisconn.HGet(r.Context(),id.Value,"username").Result()
 
 		 if userfetcherr != nil {
 			resp.JsonError(w,errors.Errfetch)
@@ -35,7 +34,7 @@ func VerifyOtp(w http.ResponseWriter,r *http.Request) {
 			return
 		 }
 
-		 email,emailfetcherr:= redisconn.HGet(context.Background(),id.Value,"email").Result()
+		 email,emailfetcherr:= redisconn.HGet(r.Context(),id.Value,"email").Result()
 
 		 if emailfetcherr != nil {
 			resp.JsonError(w,errors.Errfetch)
@@ -43,7 +42,7 @@ func VerifyOtp(w http.ResponseWriter,r *http.Request) {
 			return 
 		 }
 
-		 password,passfetcherr:= redisconn.HGet(context.Background(),id.Value,"password").Result()
+		 password,passfetcherr:= redisconn.HGet(r.Context(),id.Value,"password").Result()
 
 		 if passfetcherr != nil {
 			resp.JsonError(w,errors.Errfetch)
@@ -51,7 +50,7 @@ func VerifyOtp(w http.ResponseWriter,r *http.Request) {
 			return 
 		 }
 
-		 originalotp,otpfetcherr  := redisconn.HGet(context.Background(),id.Value,"otp").Result()
+		 originalotp,otpfetcherr  := redisconn.HGet(r.Context(),id.Value,"otp").Result()
 
 		 if otpfetcherr != nil {
 			resp.JsonError(w,errors.Errredisfetcherr)
@@ -59,7 +58,7 @@ func VerifyOtp(w http.ResponseWriter,r *http.Request) {
 			return 
 		 }
 
-		 role,reserr:= redisconn.HGet(context.Background(),id.Value,"role").Result()
+		 role,reserr:= redisconn.HGet(r.Context(),id.Value,"role").Result()
 
 		 if reserr != nil {
 			  resp.JsonError(w,"Internal Server Error")
