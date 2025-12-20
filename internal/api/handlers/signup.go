@@ -126,19 +126,7 @@ func SignupHandler(w http.ResponseWriter,r *http.Request)  {
 			return
 	   }
 
-	   //resend otp 
-
-	   emailstatus := redis.Redis.Set(context.Background(),id,email,5*time.Minute)
-
-		emailstatuserr := emailstatus.Err()
-
-		if emailstatuserr != nil {
-			resp.JsonError(w,"Internal Server Error")
-			return
-		}
-
-
-	   conn.Expire(context.Background(),id,5*time.Minute)
+	    conn.Expire(context.Background(),id,5*time.Minute)
 
 	   resp.JsonSucess(w,"Signup Successful")
 
