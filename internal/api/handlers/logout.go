@@ -4,12 +4,18 @@ import (
 	"context"
 	"klms/internal/api/errors"
 	"klms/internal/api/handlers/responses"
+	"klms/internal/api/storage/minio"
 	"klms/internal/api/storage/postgres"
 	"klms/internal/api/storage/redis"
+	"log"
 	"net/http"
+
+	sdk "github.com/minio/minio-go/v7"
 )
 
 func Logout(w http.ResponseWriter,r *http.Request) {
+
+	var profileimage string
 
 	sessionid,cokkierr := r.Cookie("session-id")
 
@@ -25,6 +31,25 @@ func Logout(w http.ResponseWriter,r *http.Request) {
 		 return
 	}
 
+	searchsql := "select profile_image from users where username=$1"
+
+	row := postgres.Db.QueryRow(searchsql,username)
+
+	scanerr := row.Scan(&profileimage)
+
+	log.Println(profileimage)
+
+	if profileimage != "" && scanerr != nil {
+		responses.JsonError(w,"Internal Server Error")
+			return
+	} 
+
+	if profileimage != "" {
+
+		      minio.Minio.RemoveObject(context.Background(),"klms-profiles",profileimage,sdk.RemoveObjectOptions{})
+	}
+
+
 	deletequery := "delete from users where username=$1"
 
 	result,delerr := postgres.Db.Exec(deletequery,username)
@@ -37,6 +62,7 @@ func Logout(w http.ResponseWriter,r *http.Request) {
    check,rowsafferr := result.RowsAffected()
    
    if rowsafferr != nil {
+	    log.Println("rows affected")
 	    responses.JsonError(w,"Internal Server Error")
 		return
    }
