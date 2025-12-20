@@ -12,6 +12,9 @@ import (
 )
 
 func ValidEmail(w http.ResponseWriter,r *http.Request) {
+
+	if r.Method == http.MethodPost {
+
 	
 	var no int
 	email := r.FormValue("email")
@@ -22,15 +25,16 @@ func ValidEmail(w http.ResponseWriter,r *http.Request) {
 
 	scanerr := row.Scan(&no)
 
+	if scanerr != nil {
+		responses.JsonError(w,"Internal Server error")
+		return
+   }
+
 	if no != 1 {
 		responses.JsonError(w,"Invalid Email Address")
 		return
 	}
 
-    if scanerr != nil {
-		 responses.JsonError(w,"Internal Server error")
-		 return
-	}
 
 	otp := services.OtpGenerator(email)
     senderr := services.SendEmail(email,otp)
@@ -56,7 +60,7 @@ func ValidEmail(w http.ResponseWriter,r *http.Request) {
 	id := services.GenerateSessionStore(email)
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     "temp-id",
+		Name:     "valid-id",
 		Value:    id,
 		Expires:  time.Now().Add(2 * time.Hour),
 		HttpOnly: true,
@@ -75,4 +79,6 @@ func ValidEmail(w http.ResponseWriter,r *http.Request) {
 	}
 
 	responses.JsonSucess(w,"Valid Email")
+   
+     }
 }
