@@ -429,12 +429,6 @@
                 <i class="fas fa-graduation-cap"></i>
                 <span>KLMS</span>
             </div>
-            <ul class="nav-links">
-                <li><a href="home.html">Home</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Contact</a></li>
-                <li><a href="login.html">Login</a></li>
-            </ul>
         </div>
     </header>
 
@@ -489,7 +483,7 @@
             if (!checkTempIdCookie()) {
                 showAlert('Session expired. Please sign up again.', 'info');
                 setTimeout(() => {
-                    window.location.href = 'signup.html';
+                    window.location.href = '/signuppage';
                 }, 3000);
                 return;
             }
@@ -614,7 +608,7 @@
                     
                     // Redirect to login page after a short delay
                     setTimeout(() => {
-                        window.location.href = 'http://localhost:8080/loginpage';
+                        window.location.href = '/loginpage';
                     }, 2000);
                 })
                 .catch(error => {
@@ -636,7 +630,7 @@
                 resendLink.style.display = 'none';
                 
                 // Send resend request to backend
-                fetch('/resend-otp', {
+                fetch('/resendotp', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
