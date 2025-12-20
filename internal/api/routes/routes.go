@@ -7,6 +7,8 @@ import (
 )
 
 func Routes() {
+	http.HandleFunc("/",handlers.Indexpage)
+	http.HandleFunc("/aboutpage",handlers.Aboutpage)
 	http.HandleFunc("/signuppage",handlers.Signuppage)
 	http.HandleFunc("/otpverifypage",handlers.Otpverifypage)
 	http.HandleFunc("/loginpage",handlers.Loginpage)
