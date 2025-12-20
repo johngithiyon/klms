@@ -17,8 +17,6 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodGet {
 
-	
-
     var name string
 	var email string
 	var imagename string
@@ -70,7 +68,7 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 	
 
 		}
-		if imagescanerr != nil && imagename != " "  {
+		if imagescanerr != nil && imagename != ""  {
 			responses.JsonError(w,"Internal Server Error")
 			return 
 		}
