@@ -12,7 +12,9 @@ import (
 
 func Forgetpassword(w http.ResponseWriter, r *http.Request) {
 
-	id,cookierr :=  r.Cookie("temp-id")
+	if r.Method == http.MethodPost {
+
+	id,cookierr :=  r.Cookie("valid-id")
 
 	if cookierr != nil {
 	    responses.JsonError(w,"Try Again Later")
@@ -66,5 +68,5 @@ func Forgetpassword(w http.ResponseWriter, r *http.Request) {
 	   if rows > 0 {
 		    responses.JsonSucess(w,"Password set Login again")
 	   }
-		 
+	}	 
 }
