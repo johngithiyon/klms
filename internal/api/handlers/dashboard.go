@@ -8,6 +8,7 @@ import (
 	"klms/internal/api/storage/minio"
 	"klms/internal/api/storage/postgres"
 	"klms/internal/api/storage/redis"
+	"log"
 	"net/http"
 	"time"
 )
@@ -36,7 +37,6 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 	 return
 }
 
-
        searchsql := "select name from certificate_info where username=$1"
 
 	   row := postgres.Db.QueryRow(searchsql,username)
@@ -54,7 +54,23 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 
 		imagescanerr := rows.Scan(&email,&imagename)
 
-		if imagescanerr != nil {
+		log.Println("This is image name",imagename)
+
+        if imagename == "" {
+
+			json.NewEncoder(w).Encode(
+				map[string]string {
+					  "name":name,
+					  "username":username,
+					  "email":email,
+				},
+		   )
+
+		   return 
+	
+
+		}
+		if imagescanerr != nil && imagename != " "  {
 			responses.JsonError(w,"Internal Server Error")
 			return 
 		}
