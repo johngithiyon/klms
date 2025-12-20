@@ -187,12 +187,49 @@
             animation: fadeIn 1s ease-out 0.4s both;
         }
 
+        /* Name Input Field */
+        .name-input-container {
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-out 0.5s both;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--dark);
+            background-color: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(93, 173, 226, 0.25);
+        }
+
+        .form-hint {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
         .profile-image-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             margin-bottom: 30px;
-            animation: fadeIn 1s ease-out 0.5s both;
+            animation: fadeIn 1s ease-out 0.6s both;
         }
 
         .profile-image {
@@ -331,17 +368,11 @@
 
         .upload-form {
             margin-bottom: 30px;
-            animation: fadeIn 1s ease-out 0.6s both;
+            animation: fadeIn 1s ease-out 0.7s both;
         }
 
         .form-group {
             margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
         }
 
         .file-input-wrapper {
@@ -387,12 +418,6 @@
             margin-top: 10px;
             font-size: 0.9rem;
             color: var(--gray);
-        }
-
-        .form-hint {
-            font-size: 0.85rem;
-            color: var(--gray);
-            margin-top: 5px;
         }
 
         .alert {
@@ -493,6 +518,15 @@
                 <i class="fas fa-graduation-cap"></i>
                 <span>KLMS</span>
             </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Courses</a></li>
+                    <li><a href="#">Profile</a></li>
+                    <li><a href="#">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
     </header>
 
     <!-- Main Content -->
@@ -504,6 +538,13 @@
             </div>
             
             <div id="alert-container"></div>
+            
+            <!-- Name Input Field -->
+            <div class="name-input-container">
+                <label for="user-name" class="form-label">Your Name</label>
+                <input type="text" id="user-name" class="form-control" placeholder="Enter your full name" required>
+                <div class="form-hint">This name will appear on your certificate</div>
+            </div>
             
             <div class="profile-image-container">
                 <div class="profile-image" id="profile-image">
@@ -545,24 +586,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
-            // function checkSession() {
-            //     const cookies = document.cookie.split(';');
-            //     for (let i = 0; i < cookies.length; i++) {
-            //         const cookie = cookies[i].trim();
-            //         if (cookie.startsWith('session-id=')) {
-            //             return true;
-            //         }
-            //     }
-            //     return false;
-            // }
-            
-            // // If not logged in, redirect to login
-            // if (!checkSession()) {
-            //     window.location.href = 'login.html';
-            //     return;
-            // }
-            
             // Elements
             const profileImage = document.getElementById('profile-image');
             const uploadBtn = document.getElementById('upload-btn');
@@ -573,6 +596,7 @@
             const fileName = document.getElementById('file-name');
             const submitBtn = document.getElementById('submit-btn');
             const alertContainer = document.getElementById('alert-container');
+            const userNameInput = document.getElementById('user-name');
             
             // Show alert message
             function showAlert(message, type) {
@@ -584,8 +608,8 @@
                 }, 5000);
             }
             
-            // Load current profile image
-            function loadProfileImage() {
+            // Load current profile image and name
+            function loadProfileData() {
                 // Show loading spinner
                 profileImage.innerHTML = '<div class="loading-spinner"><div class="spinner-large"></div></div>';
                 
@@ -595,7 +619,7 @@
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Failed to load profile image');
+                        throw new Error('Failed to load profile data');
                     }
                     return response.json();
                 })
@@ -607,16 +631,21 @@
                         profileImage.innerHTML = '<i class="fas fa-user"></i>';
                         deleteBtn.style.display = 'none';
                     }
+                    
+                    // Load user name if available
+                    if (data.name) {
+                        userNameInput.value = data.name;
+                    }
                 })
                 .catch(error => {
-                    console.error('Error loading profile image:', error);
+                    console.error('Error loading profile data:', error);
                     profileImage.innerHTML = '<i class="fas fa-user"></i>';
                     deleteBtn.style.display = 'none';
                 });
             }
             
-            // Load profile image on page load
-            loadProfileImage();
+            // Load profile data on page load
+            loadProfileData();
             
             // Upload button click
             uploadBtn.addEventListener('click', function() {
@@ -625,6 +654,13 @@
             
             // Skip button click
             skipBtn.addEventListener('click', function() {
+                // Validate name field
+                if (!userNameInput.value.trim()) {
+                    showAlert('Please enter your name before continuing.', 'danger');
+                    userNameInput.focus();
+                    return;
+                }
+                
                 // Add a subtle animation before redirecting
                 skipBtn.style.transform = 'scale(0.95)';
                 setTimeout(() => {
@@ -645,6 +681,13 @@
             // Form submission
             uploadForm.addEventListener('submit', function(e) {
                 e.preventDefault();
+                
+                // Validate name field
+                if (!userNameInput.value.trim()) {
+                    showAlert('Please enter your name.', 'danger');
+                    userNameInput.focus();
+                    return;
+                }
                 
                 if (!fileInput.files || !fileInput.files[0]) {
                     showAlert('Please select an image to upload.', 'danger');
@@ -672,6 +715,7 @@
                 // Create form data
                 const formData = new FormData();
                 formData.append('image', file);
+                formData.append('name', userNameInput.value.trim());
                 
                 // Send to backend
                 fetch('/userprofile', {
