@@ -151,8 +151,13 @@ func ProfileDelete(w http.ResponseWriter , r *http.Request) {
 		return 
 	}
 
-	username,_  := redisconn.Get(r.Context(),sessionid.Value).Result()
+	username,rediserr := redisconn.Get(r.Context(),sessionid.Value).Result()
 
+	if rediserr != nil {
+		 resp.JsonError(w,"Internal Server Error")
+		 return 
+	}
+	
 	 var  filename string 
 	   
 	 selectquery := "SELECT profile_image FROM users WHERE username = $1;"
