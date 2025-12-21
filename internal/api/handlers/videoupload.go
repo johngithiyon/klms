@@ -73,7 +73,7 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 			  RETURNING course_id
 		  `
 		  
-		  err := postgres.Db.QueryRow(insertSQL, coursename, coursedescription, category, Username).Scan(&courseID)
+		  err := postgres.Db.QueryRowContext(r.Context(),insertSQL, coursename, coursedescription, category, Username).Scan(&courseID)
 		  if err != nil {
 			  log.Println(errors.ErrInserterr, err)
 			  responses.JsonError(w, "internal server error")
@@ -84,7 +84,7 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
      
 		  searchid := "SELECT id FROM users WHERE username = $1;"
 	  
-		  useridfetcherr := postgres.Db.QueryRow(searchid,Username).Scan(&UserID)
+		  useridfetcherr := postgres.Db.QueryRowContext(r.Context(),searchid,Username).Scan(&UserID)
 	  
 	  
 		  if useridfetcherr!=nil {
@@ -131,7 +131,7 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 		  videodetailinsertsql := `INSERT INTO course_videos (course_id, video_title, video_filename,video_description,video_url)
                                    VALUES ($1, $2,$3,$4,$5)  RETURNING video_id;`
 
-          videoinserterr := postgres.Db.QueryRow(videodetailinsertsql,courseID,titles[i],videoname,video_description[i],video_url).Scan(&VideoID)
+          videoinserterr := postgres.Db.QueryRowContext(r.Context(),videodetailinsertsql,courseID,titles[i],videoname,video_description[i],video_url).Scan(&VideoID)
 		  
 		  if videoinserterr != nil {
 			    log.Println(errors.ErrInserterr,videoinserterr)

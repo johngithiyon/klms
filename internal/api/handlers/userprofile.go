@@ -75,7 +75,7 @@ func Userprofile(w http.ResponseWriter, r *http.Request) {
 
 	  insertquery := "insert into certificate_info(username,name) values($1,$2)"
 
-	  res,inserterr := postgres.Db.Exec(insertquery,username,name)
+	  res,inserterr := postgres.Db.ExecContext(r.Context(),insertquery,username,name)
 
 	  if inserterr != nil {
 		    responses.JsonError(w,"Internal Server Error")
@@ -112,7 +112,7 @@ func Userprofile(w http.ResponseWriter, r *http.Request) {
 
        updatesql := "UPDATE users SET profile_image=$1 WHERE username=$2;"
 
-	   _,updateerr := postgres.Db.Exec(updatesql,rewritefilename,username)
+	   _,updateerr := postgres.Db.ExecContext(r.Context(),updatesql,rewritefilename,username)
 
 	   if updateerr != nil {
 			  resp.JsonError(w,errors.ErrInserterr)
@@ -157,7 +157,7 @@ func ProfileDelete(w http.ResponseWriter , r *http.Request) {
 	   
 	 selectquery := "SELECT profile_image FROM users WHERE username = $1;"
 
-	 rows := postgres.Db.QueryRow(selectquery,username)
+	 rows := postgres.Db.QueryRowContext(r.Context(),selectquery,username)
 
 	 rows.Scan(&filename) 
      
@@ -166,7 +166,7 @@ func ProfileDelete(w http.ResponseWriter , r *http.Request) {
 
 	  deletequery := "UPDATE users SET profile_image = NULL WHERE username = $1;"
 
-	  _,deleteerr := postgres.Db.Exec(deletequery,username)
+	  _,deleteerr := postgres.Db.ExecContext(r.Context(),deletequery,username)
 
 	  if deleteerr != nil {
          resp.JsonError(w,errors.ErrDelete)

@@ -36,7 +36,7 @@ func Progress(w http.ResponseWriter, r *http.Request) {
 
     // Get course title
     var coursetitle string
-    err = postgres.Db.QueryRow("SELECT title FROM courses WHERE course_id=$1", courseID).Scan(&coursetitle)
+    err = postgres.Db.QueryRowContext(r.Context(),"SELECT title FROM courses WHERE course_id=$1", courseID).Scan(&coursetitle)
     if err != nil {
         log.Println("Course query error:", err)
         responses.JsonError(w, "Internal Server Error")
@@ -44,7 +44,7 @@ func Progress(w http.ResponseWriter, r *http.Request) {
     }
 
     // Create watched_videos table if it doesn't exist
-    _, err = postgres.Db.Exec(`
+    _, err = postgres.Db.ExecContext(r.Context(),`
         CREATE TABLE IF NOT EXISTS watched_videos (
             course_name TEXT,
             student_name TEXT,
@@ -60,14 +60,14 @@ func Progress(w http.ResponseWriter, r *http.Request) {
 
     // Check if this video is already counted
     var exists int
-    err = postgres.Db.QueryRow(
+    err = postgres.Db.QueryRowContext(r.Context(),
         "SELECT 1 FROM watched_videos WHERE course_name=$1 AND student_name=$2 AND video_name=$3",
         coursetitle, username, videoName,
     ).Scan(&exists)
 
     if err == sql.ErrNoRows {
         // Video not watched yet → insert record
-        _, insertErr := postgres.Db.Exec(
+        _, insertErr := postgres.Db.ExecContext(r.Context(),
             "INSERT INTO watched_videos(course_name, student_name, video_name) VALUES ($1,$2,$3)",
             coursetitle, username, videoName,
         )
@@ -84,7 +84,7 @@ func Progress(w http.ResponseWriter, r *http.Request) {
 
     // Count total unique videos watched
     var progress int
-    err = postgres.Db.QueryRow(
+    err = postgres.Db.QueryRowContext(r.Context(),
         "SELECT COUNT(*) FROM watched_videos WHERE course_name=$1 AND student_name=$2",
         coursetitle, username,
     ).Scan(&progress)
@@ -96,7 +96,7 @@ func Progress(w http.ResponseWriter, r *http.Request) {
 
     // Get total number of videos in course
     var totalVideos int
-    err = postgres.Db.QueryRow(
+    err = postgres.Db.QueryRowContext(r.Context(),
         "SELECT COUNT(*) FROM course_videos WHERE course_id=$1",
         courseID,
     ).Scan(&totalVideos)
@@ -115,14 +115,14 @@ func Progress(w http.ResponseWriter, r *http.Request) {
     // First check if record exists
     var currentProgress int
     var currentStatus string
-    err = postgres.Db.QueryRow(
+    err = postgres.Db.QueryRowContext(r.Context(),
         "SELECT progress, status FROM course_progress WHERE course_name=$1 AND student_name=$2",
         coursetitle, username,
     ).Scan(&currentProgress, &currentStatus)
 
     if err == sql.ErrNoRows {
         // Insert new record
-        _, insertErr := postgres.Db.Exec(
+        _, insertErr := postgres.Db.ExecContext(r.Context(),
             "INSERT INTO course_progress(course_name, student_name, no_of_videos, progress, status) VALUES ($1,$2,$3,$4,$5)",
             coursetitle, username, totalVideos, progress, status,
         )
@@ -137,7 +137,7 @@ func Progress(w http.ResponseWriter, r *http.Request) {
         return
     } else {
         // Update existing record
-        _, updateErr := postgres.Db.Exec(
+        _, updateErr := postgres.Db.ExecContext(r.Context(),
             "UPDATE course_progress SET progress=$1, status=$2, no_of_videos=$3 WHERE course_name=$4 AND student_name=$5",
             progress, status, totalVideos, coursetitle, username,
         )

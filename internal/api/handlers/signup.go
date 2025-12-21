@@ -69,7 +69,7 @@ func SignupHandler(w http.ResponseWriter,r *http.Request)  {
 	  dupcheckquery := "select username,email from users where username = $1 or email = $2"
 	
 
-	  userrow,searcherr:= postgres.Db.Query(dupcheckquery,username,email)
+	  userrow,searcherr:= postgres.Db.QueryContext(r.Context(),dupcheckquery,username,email)
 
 	  if searcherr != nil {
 		   resp.JsonError(w,"Internal Server Error")

@@ -29,7 +29,7 @@ func Roles(w http.ResponseWriter,r *http.Request) {
 
 	searchsql := "select role from users where username=$1"
 
-	row := postgres.Db.QueryRow(searchsql,username)
+	row := postgres.Db.QueryRowContext(r.Context(),searchsql,username)
 
 	row.Scan(&role)
 

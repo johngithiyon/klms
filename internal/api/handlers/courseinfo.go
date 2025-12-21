@@ -19,7 +19,7 @@ func Courseinfo(w http.ResponseWriter , r *http.Request) {
                 
 	    selectquery := "SELECT course_id,title, description FROM courses;"
 
-		rows ,rowerr := postgres.Db.Query(selectquery)
+		rows ,rowerr := postgres.Db.QueryContext(r.Context(),selectquery)
 
 		if rowerr != nil {
 			responses.JsonError(w,"Internal Server Error")

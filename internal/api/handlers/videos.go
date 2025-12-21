@@ -18,7 +18,7 @@ func Videos(w http.ResponseWriter, r *http.Request) {
 
 			   searchquery := "select video_title,video_description,video_url from course_videos where course_id=$1"
 
-			   rows,rowserr := postgres.Db.Query(searchquery,id)
+			   rows,rowserr := postgres.Db.QueryContext(r.Context(),searchquery,id)
 
 			   if rowserr != nil {
 				  responses.JsonError(w,"Internal Server Error")

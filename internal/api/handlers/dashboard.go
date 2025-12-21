@@ -36,7 +36,7 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 
        searchsql := "select name from certificate_info where username=$1"
 
-	   row := postgres.Db.QueryRow(searchsql,username)
+	   row := postgres.Db.QueryRowContext(r.Context(),searchsql,username)
 
 	   scanerr := row.Scan(&name)
 
@@ -47,7 +47,7 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 
        imagesearchsql := "select email,profile_image from users where username=$1"
 	   
-	    rows:= postgres.Db.QueryRow(imagesearchsql,username)
+	    rows:= postgres.Db.QueryRowContext(r.Context(),imagesearchsql,username)
 
 		imagescanerr := rows.Scan(&email,&imagename)
 

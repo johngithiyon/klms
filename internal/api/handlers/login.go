@@ -26,7 +26,7 @@ func Loginhandler(w http.ResponseWriter, r *http.Request) {
 	     searchquery := "SELECT email,password FROM users WHERE username = $1";
  
 		 
-		 rows  :=  postgres.Db.QueryRow(searchquery,username)
+		 rows  :=  postgres.Db.QueryRowContext(r.Context(),searchquery,username)
 
 	   
 		 rows.Scan(&email,&pass)

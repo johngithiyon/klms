@@ -32,7 +32,7 @@ func Logout(w http.ResponseWriter,r *http.Request) {
 
 	searchsql := "select profile_image from users where username=$1"
 
-	row := postgres.Db.QueryRow(searchsql,username)
+	row := postgres.Db.QueryRowContext(r.Context(),searchsql,username)
 
 	scanerr := row.Scan(&profileimage)
 
@@ -56,7 +56,7 @@ func Logout(w http.ResponseWriter,r *http.Request) {
 
 	deletequery := "delete from users where username=$1"
 
-	result,delerr := postgres.Db.Exec(deletequery,username)
+	result,delerr := postgres.Db.ExecContext(r.Context(),deletequery,username)
 
 	if delerr != nil {
 		responses.JsonError(w,"Internal Server Error")

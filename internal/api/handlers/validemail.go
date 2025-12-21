@@ -20,7 +20,7 @@ func ValidEmail(w http.ResponseWriter,r *http.Request) {
 
 	searchemail := "select 1 from users where email=$1"
 
-	row := postgres.Db.QueryRow(searchemail,email)
+	row := postgres.Db.QueryRowContext(r.Context(),searchemail,email)
 
 	scanerr := row.Scan(&no)
 

@@ -71,7 +71,7 @@ func VerifyOtp(w http.ResponseWriter,r *http.Request) {
 
 			  insertsql := "INSERT INTO users (username, email, password,role)VALUES ($1, $2, $3,$4);"
 
-		   result,inserterr := postgres.Db.Exec(insertsql,username,email,password,role)
+		   result,inserterr := postgres.Db.ExecContext(r.Context(),insertsql,username,email,password,role)
 				  
 		  if inserterr != nil {
 			    resp.JsonError(w,errors.ErrInserterr)

@@ -50,7 +50,7 @@ func Forgetpassword(w http.ResponseWriter, r *http.Request) {
 
 		 updatequery := "update users set password=$1 where email=$2"
 
-		result,reserr := postgres.Db.Exec(updatequery,string(password_hash),email)
+		result,reserr := postgres.Db.ExecContext(r.Context(),updatequery,string(password_hash),email)
 
 	   if reserr != nil {
 		    responses.JsonError(w,"Internal Server Error")
