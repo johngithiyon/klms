@@ -550,120 +550,6 @@
             border: 1px solid rgba(40, 167, 69, 0.2);
         }
 
-        /* Certificate Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .modal-content {
-            background-color: var(--white);
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--light-gray);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--gray);
-            transition: var(--transition);
-        }
-
-        .modal-close:hover {
-            color: var(--dark);
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .certificate-preview {
-            border: 1px solid var(--light-gray);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            text-align: center;
-            background-color: var(--light);
-            margin-bottom: 20px;
-        }
-
-        .certificate-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 20px;
-        }
-
-        .certificate-text {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .certificate-student {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .certificate-course {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-        }
-
-        .certificate-date {
-            font-style: italic;
-            color: var(--gray);
-        }
-
-        .modal-footer {
-            padding: 15px 20px;
-            border-top: 1px solid var(--light-gray);
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
         /* Responsive */
         @media (max-width: 992px) {
             .content-wrapper {
@@ -810,36 +696,6 @@
             </div>
         </div>
     </main>
-
-    <!-- Certificate Modal -->
-    <div id="certificate-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Course Completion Certificate</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="certificate-preview">
-                    <div class="certificate-title">Certificate of Completion</div>
-                    <div class="certificate-text">
-                        This is to certify that
-                    </div>
-                    <div class="certificate-student" id="certificate-student-name">Student Name</div>
-                    <div class="certificate-text">
-                        has successfully completed the course
-                    </div>
-                    <div class="certificate-course" id="certificate-course-name">Course Name</div>
-                    <div class="certificate-date" id="certificate-date">Completion Date</div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="download-certificate" class="btn btn-success">
-                    <i class="fas fa-download"></i> Download Certificate
-                </button>
-                <button id="close-modal" class="btn btn-primary">Close</button>
-            </div>
-        </div>
-    </div>
     
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -855,28 +711,20 @@
         const progressText = document.getElementById('progress-text');
         const progressCount = document.getElementById('progress-count');
         const certificateBtn = document.getElementById('certificate-btn');
-        const certificateModal = document.getElementById('certificate-modal');
-        const modalClose = document.querySelector('.modal-close');
-        const closeModalBtn = document.getElementById('close-modal');
-        const downloadCertificateBtn = document.getElementById('download-certificate');
-        const certificateStudentName = document.getElementById('certificate-student-name');
-        const certificateCourseName = document.getElementById('certificate-course-name');
-        const certificateDate = document.getElementById('certificate-date');
-    
+        
         const urlParams = new URLSearchParams(window.location.search);
         const courseId = urlParams.get('id');
-    
+        
         // Track watched videos
         const watchedVideos = new Set();
         let courseStatus = 'not completed';
         let courseTitle = '';
-        let studentName = '';
-    
+        
         function showAlert(message, type) {
             alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
             setTimeout(() => { alertContainer.innerHTML = ''; }, 5000);
         }
-    
+        
         function updateProgressUI(progress, total, status) {
             const percentage = total > 0 ? Math.round((progress / total) * 100) : 0;
             progressBar.style.width = `${percentage}%`;
@@ -891,17 +739,17 @@
                 certificateBtn.disabled = false;
             }
         }
-    
+        
         function loadVideos() {
             if (!courseId) {
                 showAlert('Course ID is missing. Please go back to the courses page.', 'danger');
                 return;
             }
-    
+        
             loadingSpinner.style.display = 'flex';
             videoList.innerHTML = '';
             emptyState.style.display = 'none';
-    
+        
             fetch(`/videos?id=${courseId}`, { method: 'GET', credentials: 'include' })
             .then(res => {
                 if (!res.ok) throw new Error('Failed to load videos');
@@ -913,20 +761,20 @@
                     emptyState.style.display = 'block';
                     return;
                 }
-    
+        
                 // Store course title
                 if (videos.length > 0) {
                     courseTitle = videos[0].CourseTitle || 'Course';
                 }
-    
+        
                 videos.forEach((video, index) => {
                     // Assign a unique ID for each video
                     video.id = video.VideoID; // ensure backend sends a unique ID field
-    
+        
                     const videoItem = document.createElement('div');
                     videoItem.className = 'video-item';
                     if (index === 0) videoItem.classList.add('active');
-    
+        
                     videoItem.innerHTML = `
                         <div class="video-thumbnail">
                             <i class="fas fa-play-circle"></i>
@@ -936,11 +784,11 @@
                             <div class="video-item-description">${video.Description}</div>
                         </div>
                     `;
-    
+        
                     videoItem.addEventListener('click', () => playVideo(video, videoItem));
                     videoList.appendChild(videoItem);
                 });
-    
+        
                 // Auto-play first video
                 if (videos.length > 0) playVideo(videos[0], videoList.firstChild);
             })
@@ -950,7 +798,7 @@
                 showAlert('Failed to load videos.', 'danger');
             });
         }
-       
+           
         function playVideo(video, videoItemElement) {
             // Highlight active video
             document.querySelectorAll('.video-item').forEach(item => item.classList.remove('active'));
@@ -994,66 +842,26 @@
             });
         }
         
-        // Certificate button click handler
+        // Certificate button click handler - Direct download
         certificateBtn.addEventListener('click', function() {
-            // Get student name from session
-            fetch('/api/student/profile', { method: 'GET', credentials: 'include' })
-            .then(res => {
-                if (!res.ok) throw new Error('Failed to get student profile');
-                return res.json();
-            })
-            .then(data => {
-                studentName = data.name || 'Student';
-                
-                // Update certificate preview
-                certificateStudentName.textContent = studentName;
-                certificateCourseName.textContent = courseTitle;
-                
-                // Set current date
-                const today = new Date();
-                const formattedDate = today.toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                });
-                certificateDate.textContent = formattedDate;
-                
-                // Show modal
-                certificateModal.style.display = 'flex';
-            })
-            .catch(err => {
-                console.error(err);
-                showAlert('Failed to load student information.', 'danger');
-            });
-        });
-        
-        // Close modal handlers
-        modalClose.addEventListener('click', function() {
-            certificateModal.style.display = 'none';
-        });
-        
-        closeModalBtn.addEventListener('click', function() {
-            certificateModal.style.display = 'none';
-        });
-        
-        // Download certificate handler
-        downloadCertificateBtn.addEventListener('click', function() {
-            // In a real implementation, this would generate and download a PDF
-            // For now, we'll just show a success message
-            showAlert('Certificate downloaded successfully!', 'success');
-            certificateModal.style.display = 'none';
-        });
-        
-        // Close modal when clicking outside
-        window.addEventListener('click', function(event) {
-            if (event.target === certificateModal) {
-                certificateModal.style.display = 'none';
-            }
+            // Create URL with course name parameter
+            const url = `/certificate`;
+
+            console.log(courseTitle)
+            
+            // Create a temporary link element to trigger download
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${courseTitle.replace(/\s+/g, '_')}_Certificate.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showAlert('Certificate download started!', 'success');
         });
         
         loadVideos();
     });
     </script>
-    
 </body>
 </html>
