@@ -21,6 +21,7 @@ func Userprofile(w http.ResponseWriter, r *http.Request) {
 
  
 	        if r.Method == http.MethodPost {
+	
 
 			 name := r.FormValue("name")
 			Imagefile,fileheader,Imageerr :=  r.FormFile("image")
@@ -73,11 +74,19 @@ func Userprofile(w http.ResponseWriter, r *http.Request) {
 			return
 	  }
 
+	  tx,txerr := postgres.Db.BeginTx(r.Context(),nil)
+
+	  if txerr != nil {
+		   resp.JsonError(w,"Internal Server Error")
+		   return 
+	  }
+
 	  insertquery := "insert into certificate_info(username,name) values($1,$2)"
 
-	  res,inserterr := postgres.Db.ExecContext(r.Context(),insertquery,username,name)
+	  res,inserterr := tx.ExecContext(r.Context(),insertquery,username,name)
 
 	  if inserterr != nil {
+		    tx.Rollback()
 		    responses.JsonError(w,"Internal Server Error")
 			return
 	  }
@@ -112,13 +121,20 @@ func Userprofile(w http.ResponseWriter, r *http.Request) {
 
        updatesql := "UPDATE users SET profile_image=$1 WHERE username=$2;"
 
-	   _,updateerr := postgres.Db.ExecContext(r.Context(),updatesql,rewritefilename,username)
+	   _,updateerr := tx.ExecContext(r.Context(),updatesql,rewritefilename,username)
 
 	   if updateerr != nil {
+		      tx.Rollback()
 			  resp.JsonError(w,errors.ErrInserterr)
 			  return 
 	   } 
 
+	  txcommiterr :=   tx.Commit()
+
+	  if txcommiterr != nil {
+		resp.JsonError(w,"Internal Server Error")
+		return 
+	  }
 	  //presigned url for user access 
 
 	   url , urlerr := minioclient.PresignedGetObject(r.Context(),"klms-profiles",rewritefilename,40*time.Minute,nil)
@@ -141,7 +157,6 @@ func Userprofile(w http.ResponseWriter, r *http.Request) {
 
 func ProfileDelete(w http.ResponseWriter , r *http.Request) {
 
-	redisconn := redis.Redis
 
 	sessionid,cokkierr := r.Cookie("session-id")
 
@@ -151,6 +166,8 @@ func ProfileDelete(w http.ResponseWriter , r *http.Request) {
 		return 
 	}
 
+	redisconn := redis.Redis
+
 	username,rediserr := redisconn.Get(r.Context(),sessionid.Value).Result()
 
 	if rediserr != nil {
@@ -159,10 +176,18 @@ func ProfileDelete(w http.ResponseWriter , r *http.Request) {
 	}
 	
 	 var  filename string 
+
+	 tx,txerr := postgres.Db.BeginTx(r.Context(),nil)
+
+	 if txerr != nil {
+		tx.Rollback()
+		resp.JsonError(w,"Internal Server Error")
+		return
+	 }
 	   
 	 selectquery := "SELECT profile_image FROM users WHERE username = $1;"
 
-	 rows := postgres.Db.QueryRowContext(r.Context(),selectquery,username)
+	 rows := tx.QueryRowContext(r.Context(),selectquery,username)
 
 	 rows.Scan(&filename) 
      
@@ -171,12 +196,20 @@ func ProfileDelete(w http.ResponseWriter , r *http.Request) {
 
 	  deletequery := "UPDATE users SET profile_image = NULL WHERE username = $1;"
 
-	  _,deleteerr := postgres.Db.ExecContext(r.Context(),deletequery,username)
+	  _,deleteerr := tx.ExecContext(r.Context(),deletequery,username)
 
 	  if deleteerr != nil {
+		 tx.Rollback()
          resp.JsonError(w,errors.ErrDelete)
 		 log.Println(deleteerr)
 		 return
+	  }
+
+	  txcommmiterr := tx.Commit()
+
+	  if txcommmiterr != nil {
+		   resp.JsonError(w,"Internal Server Error")
+		   return
 	  }
 
 	  resp.JsonSucess(w,"Image deleted successfully")	 
