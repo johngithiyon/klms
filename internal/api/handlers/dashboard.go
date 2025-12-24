@@ -7,7 +7,6 @@ import (
 	"klms/internal/api/storage/minio"
 	"klms/internal/api/storage/postgres"
 	"klms/internal/api/storage/redis"
-	"log"
 	"net/http"
 	"time"
 )
@@ -51,7 +50,6 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 
 		imagescanerr := rows.Scan(&email,&imagename)
 
-		log.Println("This is image name",imagename)
 
         if imagename == "" {
 

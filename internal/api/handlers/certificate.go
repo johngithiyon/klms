@@ -31,8 +31,6 @@ func DownloadCertificateHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    log.Printf("Certificate download request for user: %s", username)
-
     // 2. FETCH COURSE DATA - Check both status and certificate_issued
     var courseName string
     err = postgres.Db.QueryRowContext(r.Context(),`

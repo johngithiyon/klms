@@ -17,12 +17,12 @@ import (
 
 
 
-func Worker() {
+func Worker() error{
 
 	   conchl,chlerr :=  RabbitConn.Channel()
 
 	   if chlerr != nil {
-		   log.Fatal("Cannot create a channel for consumer",chlerr)
+		   return chlerr
 	   }
 
 	   defer conchl.Close()
@@ -48,7 +48,7 @@ func Worker() {
 	   )
 
 	   if conserr != nil {
-		  log.Fatal("Cannot consume",conserr)
+		  return conserr
 	   }
 
 	   for msg := range msgs {
@@ -67,8 +67,6 @@ func Worker() {
 				log.Println("cannot fetch from the bucket",objfetcherr)
 				continue
 			}
-
-  
 
              os.MkdirAll("/home/john/Documents/tmp/"+foldername,0777)
 
@@ -130,7 +128,7 @@ func Worker() {
 
 				if readerr != nil {
 					log.Println(readerr)
-					return
+					return readerr
 				}
 
 				var objname string
@@ -146,7 +144,7 @@ func Worker() {
 
 					 if openerr != nil {
 						log.Println("openning error ",openerr)
-						return
+						return openerr
 					 }
 
 					 fileinfo,infoerr := file.Stat()
@@ -154,7 +152,7 @@ func Worker() {
 					 if infoerr != nil {
 						 log.Println("Cannot get the file information",infoerr)
 						 file.Close()
-						 return
+						 return infoerr
 					 }
 
 					 objname = foldername+"/"+ videoname +"/"+name
@@ -174,7 +172,7 @@ func Worker() {
 					 if puterr != nil {
 						 log.Println("Cannot put the file into the bucket",puterr)
 						 file.Close()
-						 return
+						 return puterr
 					 }
 
 					 file.Close()
@@ -187,6 +185,8 @@ func Worker() {
 
 
 		}
+
+		return nil 
 	   
 } 
 

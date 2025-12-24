@@ -63,46 +63,7 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 			   return 
 		  }
 
-		  var courseID int
-		  var VideoID int
-
-		  tx,txerr := postgres.Db.BeginTx(r.Context(),nil)
-
-		  if txerr != nil {
-			responses.JsonError(w,"Internal Server Error")
-			return
-		  }
-
-
-		  insertSQL := `
-			  INSERT INTO courses (title, description, category, uploaded_by)
-			  VALUES ($1, $2, $3, $4)
-			  RETURNING course_id
-		  `
-		  
-		  err := tx.QueryRowContext(r.Context(),insertSQL, coursename, coursedescription, category, Username).Scan(&courseID)
-		  if err != nil {
-			  tx.Rollback()
-			  log.Println(errors.ErrInserterr, err)
-			  responses.JsonError(w, "internal server error")
-			  return
-		  }
-
-		  var UserID int 
-     
-		  searchid := "SELECT id FROM users WHERE username = $1;"
-	  
-		  useridfetcherr := tx.QueryRowContext(r.Context(),searchid,Username).Scan(&UserID)
-	  
-	  
-		  if useridfetcherr!=nil {
-			  tx.Rollback()
-			  log.Println("Unable to fetch the user id",useridfetcherr)
-			  responses.JsonError(w,"internal server error")
-			  return
-		  }
-		  
-
+	
 		  for i:=0;i<len(file);i++ {
 			  filereader,fileerr := file[i].Open()
 
@@ -129,47 +90,104 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 					  return 
 			  }
 
-
-			videoname := file[i].Filename
-
-			video_url := "http://localhost:9000/klms-videostreaming/"+coursename+"/"+videoname+"/master.m3u8"
-
-
-		  
-		  videodetailinsertsql := `INSERT INTO course_videos (course_id, video_title, video_filename,video_description,video_url)
-                                   VALUES ($1, $2,$3,$4,$5)  RETURNING video_id;`
-
-          videoinserterr := tx.QueryRowContext(r.Context(),videodetailinsertsql,courseID,titles[i],videoname,video_description[i],video_url).Scan(&VideoID)
-		  
-		  if videoinserterr != nil {
-			    tx.Rollback()
-			    log.Println(errors.ErrInserterr,videoinserterr)
-				responses.JsonError(w,"internal server error")
-				return
-		  }
-
-			pusher := map[string]interface{}{
-				"video_id":VideoID,
-				"user_id":UserID,
-				"videoname":videoname,
-				"objectname":objname,
-				"coursename":coursename,
-		}
-
-		jsondata,converterr := json.Marshal(pusher)
-
-		if converterr != nil {
-			log.Fatal("convert error from Marshal",converterr)
-		}
-		
-		queueerr:= services.QueuePusher(jsondata)
-
-		if queueerr != nil {
-			 responses.JsonError(w,"Internal Server Error")
-			 return 
-		}
-
 	 }
+
+
+	 var courseID int
+	 var VideoID int
+
+	 tx,txerr := postgres.Db.BeginTx(r.Context(),nil)
+
+	 if txerr != nil {
+	   responses.JsonError(w,"Internal Server Error")
+	   return
+	 }
+
+	 var UserID int 
+
+	 searchid := "SELECT id FROM users WHERE username = $1;"
+ 
+	 useridfetcherr := tx.QueryRowContext(r.Context(),searchid,Username).Scan(&UserID)
+ 
+ 
+	 if useridfetcherr!=nil {
+		 tx.Rollback()
+		 log.Println("Unable to fetch the user id",useridfetcherr)
+		 responses.JsonError(w,"internal server error")
+		 return
+	 }
+
+
+
+		insertSQL := `
+		INSERT INTO courses (title, description, category, uploaded_by)
+		VALUES ($1, $2, $3, $4)
+		RETURNING course_id
+	`
+	
+	err := tx.QueryRowContext(r.Context(),insertSQL, coursename, coursedescription, category, Username).Scan(&courseID)
+	if err != nil {
+		tx.Rollback()
+		log.Println(errors.ErrInserterr, err)
+		responses.JsonError(w, "internal server error")
+		return
+	}
+
+	for i:=0;i<len(file);i++  {
+
+		filereader,fileerr := file[i].Open()
+
+		if fileerr != nil {
+			log.Println(errors.ErrFileNotFound,fileerr)
+			responses.JsonError(w,errors.ErrFileNotFound)
+			return
+		}
+
+		defer filereader.Close()
+
+		videoname := file[i].Filename
+
+		video_url := "http://localhost:9000/klms-videostreaming/"+coursename+"/"+videoname+"/master.m3u8"
+
+
+	  
+	  videodetailinsertsql := `INSERT INTO course_videos (course_id, video_title, video_filename,video_description,video_url)
+							   VALUES ($1, $2,$3,$4,$5)  RETURNING video_id;`
+
+	  videoinserterr := tx.QueryRowContext(r.Context(),videodetailinsertsql,courseID,titles[i],videoname,video_description[i],video_url).Scan(&VideoID)
+	  
+	  if videoinserterr != nil {
+			log.Println(errors.ErrInserterr,videoinserterr)
+			responses.JsonError(w,"internal server error")
+			return
+	  }
+
+	  coursename := strings.ReplaceAll(coursename," ","")
+
+	  objname := coursename+"/"+file[i].Filename
+
+
+		pusher := map[string]interface{}{
+			"video_id":VideoID,
+			"user_id":UserID,
+			"videoname":videoname,
+			"objectname":objname,
+			"coursename":coursename,
+	}
+
+	jsondata,converterr := json.Marshal(pusher)
+
+	if converterr != nil {
+		log.Fatal("convert error from Marshal",converterr)
+	}
+	
+	queueerr:= services.QueuePusher(jsondata)
+
+	if queueerr != nil {
+		 responses.JsonError(w,"Internal Server Error")
+		 return 
+	 }
+}
 	 
 	 txcommiterr :=tx.Commit()
 
