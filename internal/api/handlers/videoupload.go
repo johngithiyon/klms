@@ -66,6 +66,13 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 		  var courseID int
 		  var VideoID int
 
+		  tx,txerr := postgres.Db.BeginTx(r.Context(),nil)
+
+		  if txerr != nil {
+			responses.JsonError(w,"Internal Server Error")
+			return
+		  }
+
 
 		  insertSQL := `
 			  INSERT INTO courses (title, description, category, uploaded_by)
@@ -73,8 +80,9 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 			  RETURNING course_id
 		  `
 		  
-		  err := postgres.Db.QueryRowContext(r.Context(),insertSQL, coursename, coursedescription, category, Username).Scan(&courseID)
+		  err := tx.QueryRowContext(r.Context(),insertSQL, coursename, coursedescription, category, Username).Scan(&courseID)
 		  if err != nil {
+			  tx.Rollback()
 			  log.Println(errors.ErrInserterr, err)
 			  responses.JsonError(w, "internal server error")
 			  return
@@ -84,10 +92,11 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
      
 		  searchid := "SELECT id FROM users WHERE username = $1;"
 	  
-		  useridfetcherr := postgres.Db.QueryRowContext(r.Context(),searchid,Username).Scan(&UserID)
+		  useridfetcherr := tx.QueryRowContext(r.Context(),searchid,Username).Scan(&UserID)
 	  
 	  
 		  if useridfetcherr!=nil {
+			  tx.Rollback()
 			  log.Println("Unable to fetch the user id",useridfetcherr)
 			  responses.JsonError(w,"internal server error")
 			  return
@@ -120,7 +129,6 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 					  return 
 			  }
 
-			  defer filereader.Close()
 
 			videoname := file[i].Filename
 
@@ -131,13 +139,15 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 		  videodetailinsertsql := `INSERT INTO course_videos (course_id, video_title, video_filename,video_description,video_url)
                                    VALUES ($1, $2,$3,$4,$5)  RETURNING video_id;`
 
-          videoinserterr := postgres.Db.QueryRowContext(r.Context(),videodetailinsertsql,courseID,titles[i],videoname,video_description[i],video_url).Scan(&VideoID)
+          videoinserterr := tx.QueryRowContext(r.Context(),videodetailinsertsql,courseID,titles[i],videoname,video_description[i],video_url).Scan(&VideoID)
 		  
 		  if videoinserterr != nil {
+			    tx.Rollback()
 			    log.Println(errors.ErrInserterr,videoinserterr)
 				responses.JsonError(w,"internal server error")
 				return
 		  }
+
 			pusher := map[string]interface{}{
 				"video_id":VideoID,
 				"user_id":UserID,
@@ -159,8 +169,15 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 			 return 
 		}
 
-	 }	
-    
+	 }
+	 
+	 txcommiterr :=tx.Commit()
+
+		  if txcommiterr != nil {
+			    responses.JsonError(w,"Internal Server Error")
+				return
+		  }
+
 	 w.Header().Set("Content-Type", "application/json")
 	 responses.JsonSucess(w,"video is received processing...") 
 	    
