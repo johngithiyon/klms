@@ -17,15 +17,14 @@ import (
 
 
 
-func Worker() error{
+func Worker() {
 
 	   conchl,chlerr :=  RabbitConn.Channel()
 
 	   if chlerr != nil {
-		   return chlerr
+        log.Println("Cannot able to create channel",chlerr)
+		return 
 	   }
-
-	   defer conchl.Close()
 
 
 	   conchl.Qos(
@@ -48,11 +47,22 @@ func Worker() error{
 	   )
 
 	   if conserr != nil {
-		  return conserr
+        log.Println("Cannot consume from queue",conserr)
+		return 
 	   }
 
 	   for msg := range msgs {
-             
+
+		func() {
+
+		defer func() {
+			panicerr := recover()
+	
+			if panicerr != nil {
+			  log.Println("Recovered from the panic",panicerr)
+			}
+	  }()
+	         
 		    var data map[string]interface{}
 		    json.Unmarshal(msg.Body,&data)
 
@@ -65,7 +75,8 @@ func Worker() error{
 
 		    if objfetcherr != nil {
 				log.Println("cannot fetch from the bucket",objfetcherr)
-				continue
+				msg.Nack(false,true)
+				return
 			}
 
              os.MkdirAll("/home/john/Documents/tmp/"+foldername,0777)
@@ -112,7 +123,8 @@ func Worker() error{
 
 				if stderr != nil {
 					log.Println("Cannot get the data from the stdpipe",stderr)
-					continue
+					msg.Nack(false,true)
+					return 
 				}
 
 				cmd.Start()
@@ -128,7 +140,8 @@ func Worker() error{
 
 				if readerr != nil {
 					log.Println(readerr)
-					return readerr
+					msg.Nack(false,true)
+					return 
 				}
 
 				var objname string
@@ -144,15 +157,17 @@ func Worker() error{
 
 					 if openerr != nil {
 						log.Println("openning error ",openerr)
-						return openerr
+						msg.Nack(false,true)
+						return 
 					 }
 
 					 fileinfo,infoerr := file.Stat()
 
 					 if infoerr != nil {
 						 log.Println("Cannot get the file information",infoerr)
+						 msg.Nack(false,true)
 						 file.Close()
-						 return infoerr
+						 return 
 					 }
 
 					 objname = foldername+"/"+ videoname +"/"+name
@@ -171,8 +186,9 @@ func Worker() error{
 
 					 if puterr != nil {
 						 log.Println("Cannot put the file into the bucket",puterr)
+						 msg.Nack(false,true)
 						 file.Close()
-						 return puterr
+						 return 
 					 }
 
 					 file.Close()
@@ -183,11 +199,9 @@ func Worker() error{
 			   os.RemoveAll(localpath)
                msg.Ack(false)
 
+		}()   
 
 		}
-
-		return nil 
-	   
 } 
 
 	
