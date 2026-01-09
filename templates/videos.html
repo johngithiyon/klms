@@ -555,7 +555,7 @@
             .content-wrapper {
                 flex-direction: column;
             }
-            
+           
             .video-list-container {
                 max-height: none;
             }
@@ -566,7 +566,7 @@
                 flex-direction: column;
                 align-items: flex-start;
             }
-            
+           
             .page-actions {
                 margin-left: 0;
                 margin-top: 20px;
@@ -595,7 +595,7 @@
             .video-item {
                 flex-direction: column;
             }
-            
+           
             .video-thumbnail {
                 width: 100%;
                 height: 150px;
@@ -633,7 +633,7 @@
             </nav>
         </div>
     </header>
-    
+   
     <!-- Main Content -->
     <main>
         <div class="container">
@@ -651,9 +651,9 @@
                     </button>
                 </div>
             </div>
-    
+   
             <div id="alert-container"></div>
-    
+   
             <div class="content-wrapper">
                 <div class="video-section">
                     <div class="video-player" id="video-player">
@@ -662,11 +662,11 @@
                             <p>Select a video to play</p>
                         </div>
                     </div>
-                    
+                   
                     <div class="video-info" id="video-info" style="display: none;">
                         <h2 class="video-title" id="current-video-title">Video Title</h2>
                         <p class="video-description" id="current-video-description">Video description will appear here</p>
-                        
+                       
                         <div class="progress-indicator">
                             <div class="progress-bar" id="progress-bar"></div>
                         </div>
@@ -676,16 +676,16 @@
                         </div>
                     </div>
                 </div>
-                
+               
                 <div class="video-list-section">
                     <div class="video-list-container">
                         <h3 class="video-list-title">Course Videos</h3>
                         <div id="video-list" class="video-list"></div>
-                        
+                       
                         <div id="loading" class="spinner-container">
                             <div class="spinner"></div>
                         </div>
-                        
+                       
                         <div id="empty-state" class="empty-state" style="display: none;">
                             <i class="fas fa-video-slash"></i>
                             <h3>No Videos Available</h3>
@@ -696,7 +696,7 @@
             </div>
         </div>
     </main>
-    
+   
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const videoPlayer = document.getElementById('video-player');
@@ -711,45 +711,45 @@
         const progressText = document.getElementById('progress-text');
         const progressCount = document.getElementById('progress-count');
         const certificateBtn = document.getElementById('certificate-btn');
-        
+       
         const urlParams = new URLSearchParams(window.location.search);
         const courseId = urlParams.get('id');
-        
+       
         // Track watched videos
         const watchedVideos = new Set();
         let courseStatus = 'not completed';
         let courseTitle = '';
-        
+       
         function showAlert(message, type) {
             alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
             setTimeout(() => { alertContainer.innerHTML = ''; }, 5000);
         }
-        
+       
         function updateProgressUI(progress, total, status) {
             const percentage = total > 0 ? Math.round((progress / total) * 100) : 0;
             progressBar.style.width = `${percentage}%`;
             progressText.textContent = `${percentage}% Complete`;
             progressCount.textContent = `${progress}/${total} videos`;
-            
+           
             // Update course status
             courseStatus = status;
-            
+           
             // Enable certificate button if course is completed
             if (status === 'completed') {
                 certificateBtn.disabled = false;
             }
         }
-        
+       
         function loadVideos() {
             if (!courseId) {
                 showAlert('Course ID is missing. Please go back to the courses page.', 'danger');
                 return;
             }
-        
+       
             loadingSpinner.style.display = 'flex';
             videoList.innerHTML = '';
             emptyState.style.display = 'none';
-        
+       
             fetch(`/videos?id=${courseId}`, { method: 'GET', credentials: 'include' })
             .then(res => {
                 if (!res.ok) throw new Error('Failed to load videos');
@@ -761,20 +761,20 @@
                     emptyState.style.display = 'block';
                     return;
                 }
-        
+       
                 // Store course title
                 if (videos.length > 0) {
                     courseTitle = videos[0].CourseTitle || 'Course';
                 }
-        
+       
                 videos.forEach((video, index) => {
                     // Assign a unique ID for each video
                     video.id = video.VideoID; // ensure backend sends a unique ID field
-        
+       
                     const videoItem = document.createElement('div');
                     videoItem.className = 'video-item';
                     if (index === 0) videoItem.classList.add('active');
-        
+       
                     videoItem.innerHTML = `
                         <div class="video-thumbnail">
                             <i class="fas fa-play-circle"></i>
@@ -784,11 +784,11 @@
                             <div class="video-item-description">${video.Description}</div>
                         </div>
                     `;
-        
+       
                     videoItem.addEventListener('click', () => playVideo(video, videoItem));
                     videoList.appendChild(videoItem);
                 });
-        
+       
                 // Auto-play first video
                 if (videos.length > 0) playVideo(videos[0], videoList.firstChild);
             })
@@ -798,7 +798,7 @@
                 showAlert('Failed to load videos.', 'danger');
             });
         }
-           
+       
         function playVideo(video, videoItemElement) {
             // Highlight active video
             document.querySelectorAll('.video-item').forEach(item => item.classList.remove('active'));
@@ -811,10 +811,37 @@
                                      </video>`;
 
             const vid = document.getElementById('course-video');
+            let lastValidTime = 0;
 
             currentVideoTitle.textContent = video.Title;
             currentVideoDescription.textContent = video.Description;
             videoInfo.style.display = 'block';
+
+            // --- BLOCK SEEK FORWARD LOGIC ---
+            // 1. Detect when user clicks or drags the timeline
+            vid.addEventListener('seeking', function() {
+                // If the new time is ahead of what they've already watched
+                if (vid.currentTime > lastValidTime) {
+                    vid.currentTime = lastValidTime; // Force them back
+                }
+            });
+
+            // 2. Continuously track the furthest point watched
+            vid.addEventListener('timeupdate', function() {
+                // Only update lastValidTime if the video is playing naturally
+                // and not currently in a 'seeking' state
+                if (!vid.seeking && vid.currentTime > lastValidTime) {
+                    lastValidTime = vid.currentTime;
+                }
+            });
+
+            // 3. Optional: Block keyboard right-arrow skip
+            vid.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                }
+            });
+            // ---------------------------------
 
             // On video end
             vid.addEventListener('ended', () => {
@@ -822,9 +849,9 @@
                     watchedVideos.add(video.Title); // Mark as watched
 
                     // Send progress update to backend
-                    fetch(`/progress?course=${courseId}&video=${encodeURIComponent(video.Title)}`, { 
-                        method: 'POST', 
-                        credentials: 'include' 
+                    fetch(`/progress?course=${courseId}&video=${encodeURIComponent(video.Title)}`, {
+                        method: 'POST',
+                        credentials: 'include'
                     })
                     .then(res => {
                         if (!res.ok) throw new Error('Failed to update progress');
@@ -841,14 +868,14 @@
                 }
             });
         }
-        
+       
         // Certificate button click handler - Direct download
         certificateBtn.addEventListener('click', function() {
             // Create URL with course name parameter
             const url = `/certificate`;
 
             console.log(courseTitle)
-            
+           
             // Create a temporary link element to trigger download
             const link = document.createElement('a');
             link.href = url;
@@ -856,10 +883,10 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
+           
             showAlert('Certificate download started!', 'success');
         });
-        
+       
         loadVideos();
     });
     </script>
