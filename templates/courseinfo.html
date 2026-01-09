@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KLMS - Courses</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5dade2;
+            --primary-dark: #3498db;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #c7ddf7, #e3f0ff);
+            color: var(--dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--white);
+            box-shadow: var(--box-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 2rem;
+            animation: rotateIn 1s ease-out;
+        }
+
+        @keyframes rotateIn {
+            from {
+                transform: rotate(-30deg);
+                opacity: 0;
+            }
+            to {
+                transform: rotate(0);
+                opacity: 1;
+            }
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .nav-links li {
+            margin-left: 20px;
+        }
+
+        .nav-links a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 40px 0;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .page-title-container {
+            flex: 1;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .page-subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        .page-action {
+            margin-left: 20px;
+        }
+
+        /* Google-like Search Bar Styles */
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0 40px;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 3px 12px;
+            transition: var(--transition);
+        }
+
+        .search-bar:hover, .search-bar:focus-within {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .search-icon {
+            color: var(--gray);
+            font-size: 1rem;
+            margin-right: 8px;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 8px 0;
+            font-size: 0.9rem;
+            outline: none;
+            color: var(--dark);
+        }
+
+        .search-input::placeholder {
+            color: var(--gray);
+        }
+
+        .clear-icon {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-right: 5px;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .clear-icon.visible {
+            opacity: 1;
+        }
+
+        .search-info {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--gray);
+            height: 20px;
+        }
+
+        /* Course Cards */
+        .courses-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .course-card {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            animation: fadeInUp 0.8s ease-out;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
+            transition: width 0.3s ease;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-card:hover::before {
+            width: 8px;
+        }
+
+        .course-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--dark);
+            padding-left: 10px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .course-description {
+            color: var(--gray);
+            margin-bottom: 20px;
+            flex-grow: 1;
+            line-height: 1.6;
+        }
+
+        /* --- NEW: Progress / Status Styles --- */
+        .course-status {
+            margin-bottom: 20px;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .status-text {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .status-text.completed {
+            color: var(--success);
+        }
+
+        .percentage-text {
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background-color: var(--light-gray);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-line {
+            height: 100%;
+            width: 0%; /* Set via JS */
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            border-radius: 10px;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        /* Green line for 100% */
+        .progress-line.completed {
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+        }
+        /* ------------------------------------- */
+
+        .course-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: auto;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
+            color: white;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-upload {
+            background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
+            color: white;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
+            text-decoration: none;
+        }
+
+        .btn-upload:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Loading spinner */
+        .spinner-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(93, 173, 226, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--light-gray);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--gray);
+        }
+
+        .empty-state p {
+            color: var(--gray);
+        }
+
+        /* Alert */
+        .alert {
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                transform: translateX(-5px);
+            }
+            20%, 40%, 60%, 80% {
+                transform: translateX(5px);
+            }
+        }
+
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        /* Search Results Highlight */
+        .highlight {
+            background-color: rgba(93, 173, 226, 0.2);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .courses-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .page-action {
+                margin-left: 0;
+                margin-top: 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header-container {
+                flex-direction: column;
+            }
+
+            .nav-links {
+                margin-top: 15px;
+            }
+
+            .nav-links li {
+                margin: 0 10px;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .courses-container {
+                grid-template-columns: 1fr;
+            }
+
+            .search-wrapper {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>KLMS</span>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="/dashboardpage">Dashboard</a></li>
+                    <li><a href="/logoutpage">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <div class="page-title-container">
+                    <h1 class="page-title">Available Courses</h1>
+                    <p class="page-subtitle">Explore our wide range of courses and enhance your learning</p>
+                </div>
+                <div class="page-action" id="upload-button-container" style="display: none;">
+                    <a href="/videosuploadpage" class="btn btn-upload">
+                        <i class="fas fa-cloud-upload-alt"></i> Upload New Course
+                    </a>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <div class="search-bar">
+                        <span class="search-icon">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="search-input" placeholder="Search courses..." id="search-input">
+                        <span class="clear-icon" id="clear-icon">
+                            <i class="fas fa-times"></i>
+                        </span>
+                    </div>
+                    <div class="search-info" id="search-info"></div>
+                </div>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <div id="courses-container" class="courses-container">
+                <!-- Courses will be loaded here -->
+            </div>
+
+            <div id="loading" class="spinner-container">
+                <div class="spinner"></div>
+            </div>
+
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <i class="fas fa-book-open"></i>
+                <h3>No Courses Available</h3>
+                <p>There are currently no courses available. Please check back later.</p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import BASE_URL from "../static/js/config.js"
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const coursesContainer = document.getElementById('courses-container');
+            const loadingSpinner = document.getElementById('loading');
+            const emptyState = document.getElementById('empty-state');
+            const alertContainer = document.getElementById('alert-container');
+            const uploadButtonContainer = document.getElementById('upload-button-container');
+            const searchInput = document.getElementById('search-input');
+            const clearIcon = document.getElementById('clear-icon');
+            const searchInfo = document.getElementById('search-info');
+            
+            // Store all courses for filtering
+            let allCourses = [];
+            
+            // Show alert message
+            function showAlert(message, type) {
+                alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    alertContainer.innerHTML = '';
+                }, 5000);
+            }
+            
+            // Check user role and show upload button if teacher
+            function checkUserRole() {
+                fetch(`${BASE_URL}/role`, {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to get user profile');
+                    }
+                    return response.json();
+                })
+                .then(userProfile => {
+                    // Show upload button only if user is a teacher
+                    if (userProfile.role === 'staff') {
+                        uploadButtonContainer.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking user role:', error);
+                    // Don't show alert for this error as it's not critical for the main functionality
+                });
+            }
+            
+            // Load courses
+            function loadCourses() {
+                // Show loading spinner
+                loadingSpinner.style.display = 'flex';
+                coursesContainer.innerHTML = '';
+                emptyState.style.display = 'none';
+                
+                fetch(`${BASE_URL}/courses`, {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load courses');
+                    }
+                    return response.json();
+                })
+                .then(courses => {
+                    // Hide loading spinner
+                    loadingSpinner.style.display = 'none';
+                    
+                    // Store all courses for filtering
+                    allCourses = courses;
+                    
+                    // Display courses
+                    displayCourses(courses);
+                })
+                .catch(error => {
+                    console.error('Error loading courses:', error);
+                    loadingSpinner.style.display = 'none';
+                    showAlert('Failed to load courses. Please try again later.', 'danger');
+                });
+            }
+            
+            // Highlight search term in text
+            function highlightSearchTerm(text, searchTerm) {
+                if (!searchTerm) return text;
+                
+                const regex = new RegExp(`(${searchTerm})`, 'gi');
+                return text.replace(regex, '<span class="highlight">$1</span>');
+            }
+            
+            // Display courses
+            function displayCourses(courses) {
+                coursesContainer.innerHTML = '';
+                
+                if (courses.length === 0) {
+                    // Show empty state
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                
+                // Hide empty state
+                emptyState.style.display = 'none';
+                
+                // Get search term for highlighting
+                const searchTerm = searchInput.value.trim();
+                
+                // Display courses
+                courses.forEach(course => {
+                    const courseCard = document.createElement('div');
+                    courseCard.className = 'course-card';
+                    
+                    // Highlight search term in title and description
+                    const highlightedTitle = highlightSearchTerm(course.title, searchTerm);
+                    const highlightedDescription = highlightSearchTerm(course.description, searchTerm);
+                    
+                    // --- Status Logic ---
+                    // Assuming the API returns 'progress' (0-100). Defaults to 0 if undefined.
+                    const progress = course.progress !== undefined ? parseInt(course.progress) : 0;
+                    
+                    let statusLabel = "Not Started";
+                    let statusClass = "";
+                    let completedClass = "";
+
+                    if (progress > 0 && progress < 100) {
+                        statusLabel = "In Progress";
+                    } else if (progress >= 100) {
+                        statusLabel = "Completed";
+                        completedClass = "completed";
+                        statusClass = "completed";
+                    }
+
+                    const statusHTML = `
+                        <div class="course-status">
+                            <div class="progress-labels">
+                                <span class="status-text ${statusClass}">${statusLabel}</span>
+                                <span class="percentage-text">${progress}%</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-line ${completedClass}" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+                    `;
+                    // ---------------------
+
+                    courseCard.innerHTML = `
+                        <h3 class="course-title">${highlightedTitle}</h3>
+                        <p class="course-description">${highlightedDescription}</p>
+                        ${statusHTML}
+                        <div class="course-actions">
+                            <button class="btn btn-primary" onclick="viewCourse(${course.courseid})">
+                                <i class="fas fa-play-circle"></i> View Course
+                            </button>
+                        </div>
+                    `;
+                    coursesContainer.appendChild(courseCard);
+                });
+            }
+            
+            // Filter and sort courses based on search term
+            function filterCourses() {
+                const searchTerm = searchInput.value.trim();
+                
+                // Update clear icon visibility
+                if (searchTerm) {
+                    clearIcon.classList.add('visible');
+                } else {
+                    clearIcon.classList.remove('visible');
+                }
+                
+                // If search term is less than 3 characters, show all courses
+                if (searchTerm.length < 1) {
+                    displayCourses(allCourses);
+                    return;
+                }
+                
+                // Filter courses that match the search term
+                const filteredCourses = allCourses.filter(course => {
+                    return course.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                           course.description.toLowerCase().includes(searchTerm.toLowerCase());
+                });
+                
+                // Sort courses by relevance:
+                // 1. Exact title matches first
+                // 2. Title matches (partial)
+                // 3. Description matches
+                const sortedCourses = [...filteredCourses].sort((a, b) => {
+                    const aTitleLower = a.title.toLowerCase();
+                    const bTitleLower = b.title.toLowerCase();
+                    const aDescLower = a.description.toLowerCase();
+                    const bDescLower = b.description.toLowerCase();
+                    const searchTermLower = searchTerm.toLowerCase();
+                    
+                    // Check for exact title match
+                    const aExactTitle = aTitleLower === searchTermLower;
+                    const bExactTitle = bTitleLower === searchTermLower;
+                    
+                    if (aExactTitle && !bExactTitle) return -1;
+                    if (!aExactTitle && bExactTitle) return 1;
+                    
+                    // Check for title starts with search term
+                    const aTitleStartsWith = aTitleLower.startsWith(searchTermLower);
+                    const bTitleStartsWith = bTitleLower.startsWith(searchTermLower);
+                    
+                    if (aTitleStartsWith && !bTitleStartsWith) return -1;
+                    if (!aTitleStartsWith && bTitleStartsWith) return 1;
+                    
+                    // Check for title contains search term
+                    const aTitleContains = aTitleLower.includes(searchTermLower);
+                    const bTitleContains = bTitleLower.includes(searchTermLower);
+                    
+                    if (aTitleContains && !bTitleContains) return -1;
+                    if (!aTitleContains && bTitleContains) return 1;
+                    
+                    // Check for description contains search term
+                    const aDescContains = aDescLower.includes(searchTermLower);
+                    const bDescContains = bDescLower.includes(searchTermLower);
+                    
+                    if (aDescContains && !bDescContains) return -1;
+                    if (!aDescContains && bDescContains) return 1;
+                    
+                    return 0;
+                });
+                
+                
+                displayCourses(sortedCourses);
+            }
+            
+            // Clear search
+            function clearSearch() {
+                searchInput.value = '';
+                clearIcon.classList.remove('visible');
+                searchInfo.textContent = '';
+                displayCourses(allCourses);
+            }
+            
+            // View course function - using course ID
+            window.viewCourse = function(courseId) {
+                // Redirect with course ID as parameter
+                window.location.href = `videospage?id=${courseId}`;
+            };
+            
+            // Add event listeners for search
+            searchInput.addEventListener('input', filterCourses);
+            clearIcon.addEventListener('click', clearSearch);
+            
+            // Initialize page
+            checkUserRole();
+            loadCourses();
+        });
+    </script>
+</body>
+</html>
