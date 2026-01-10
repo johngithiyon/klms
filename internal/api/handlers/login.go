@@ -4,12 +4,10 @@ import (
 	"klms/internal/api/services"
 	"klms/internal/api/storage/postgres"
 	"klms/internal/api/storage/redis"
-	"log"
 	"net/http"
 	"golang.org/x/crypto/bcrypt"
 	resp "klms/internal/api/handlers/responses"
 )
-
 
 
 func Loginhandler(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +32,6 @@ func Loginhandler(w http.ResponseWriter, r *http.Request) {
 		 err := bcrypt.CompareHashAndPassword(pass,[]byte(password)) 
 
 		 if err != nil {
-			  log.Println("Invalid Password or Email")
 			  resp.JsonError(w,"Invalid Password Or Email")
 			  return
 	          
@@ -52,7 +49,6 @@ func Loginhandler(w http.ResponseWriter, r *http.Request) {
 		 })
 
 		     redisconn := redis.Redis
-
 			 redisconn.Set(r.Context(),id,username,0)
 
 			 resp.JsonSucess(w,"Login Successful")
