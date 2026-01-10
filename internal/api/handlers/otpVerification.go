@@ -89,7 +89,7 @@ func VerifyOtp(w http.ResponseWriter,r *http.Request) {
 		   if rowsaffected < 0 {
 				return 
 		   }
-
+		   		   
 		   resp.JsonSucess(w,"user verified successfully")
 		   return 		  
 		}  else {
