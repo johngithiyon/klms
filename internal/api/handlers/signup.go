@@ -127,6 +127,21 @@ func SignupHandler(w http.ResponseWriter,r *http.Request)  {
 
 	    conn.Expire(r.Context(),id,5*time.Minute)
 
+
+		anoid := services.GenerateSessionStore(username)
+
+
+
+		http.SetCookie(w,&http.Cookie{
+
+		   Name: "ano-id",
+		   Value: anoid,
+		   HttpOnly: true,
+		   Secure: false,
+		   SameSite: http.SameSiteStrictMode,
+   })
+
+
 	   resp.JsonSucess(w,"Signup Successful")
 
 	 } 
