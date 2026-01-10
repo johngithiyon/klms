@@ -21,10 +21,10 @@ func Routes() {
 
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	http.HandleFunc("/signup",handlers.SignupHandler) 
-	http.HandleFunc("/otp",handlers.VerifyOtp)
+	http.Handle("/signup",middleware.Ratelimiting(http.HandlerFunc(handlers.SignupHandler))) 
+	http.Handle("/otp",middleware.Ratelimiting(http.HandlerFunc(handlers.VerifyOtp)))
 	http.HandleFunc("/resendotp",handlers.Resendotp)
-	http.HandleFunc("/login",handlers.Loginhandler)
+	http.Handle("/login",middleware.Ratelimiting(http.HandlerFunc(handlers.Loginhandler)))
 	http.HandleFunc("/logout",handlers.Logout)
 	http.HandleFunc("/validemail",handlers.ValidEmail)
 	http.HandleFunc("/passotpverify",handlers.Passotpverify)
