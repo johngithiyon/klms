@@ -56,22 +56,30 @@ func Ratelimiting(next http.Handler) http.Handler {
 
 
 					   if userfetcheerr != nil {
+						      log.Println("i am working",userfetcheerr)
 						      http.Error(w,"No cookie found",400)
 							  return 
 					   }
 
 					   log.Println("ID",user.Value)
 
-	                  count , fetcherr :=  redis.Redis.Incr(r.Context(),user.Value).Result()
+	                  count , fetcherr :=  redis.Redis.Incr(r.Context(),"rate"+user.Value).Result()
+
+					  log.Println(count)
+
+		           	log.Println(user.Value)
+
 
 					  if fetcherr != nil {
+						
+						log.Println("fetch err ", fetcherr)
 						http.Error(w,"Internal Server Error",500)
 						return 
 					  }
 
 
 					  if count == 1 {
-						redis.Redis.Expire(r.Context(),user.Value,1*time.Second)
+						redis.Redis.Expire(r.Context(),"rate"+user.Value,100*time.Second)
 					}
 
 					  if count > 5 {
@@ -80,22 +88,25 @@ func Ratelimiting(next http.Handler) http.Handler {
 				     }
 
 
-			 } else {
-				http.Error(w,"No cookie found",400)
-				return 
 			 } 
-			
+
+
 		} else {
 			 
-			count , fetcherr :=  redis.Redis.Incr(r.Context(),username.Value).Result()
+			count , fetcherr :=  redis.Redis.Incr(r.Context(),"rate"+username.Value).Result()
+
+			log.Println(count)
+
+			log.Println(username.Value)
 
 			if fetcherr != nil {
+				log.Println("fetch err 2 ", fetcherr)
 			  http.Error(w,"Internal Server Error",500)
 			  return 
 			}
 
 			if count == 1 {
-				redis.Redis.Expire(r.Context(),username.Value,1*time.Second)
+				redis.Redis.Expire(r.Context(),"rate"+username.Value,100*time.Second)
 			}
 
 
