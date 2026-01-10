@@ -21,13 +21,15 @@ start:
 	sudo docker start mypostgres
 	sudo docker start myminio
 	sudo docker start myredis	
-	sudo docker start rabbitmq																																																										
+	sudo docker start rabbitmq		
+	sudo systemctl start nginx																																																									
 
 stop:
 	sudo docker stop mypostgres
 	sudo docker stop myminio
 	sudo docker stop myredis
 	sudo docker stop rabbitmq
+	sudo systemctl stop nginx
 
 run:
 	go run $(MAIN)
