@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"klms/internal/api/services"
 	"net/http"
 )
 
@@ -13,6 +14,21 @@ func Otpverifypage(w http.ResponseWriter,r *http.Request) {
 }
 
 func Loginpage(w http.ResponseWriter, r *http.Request) {
+
+	uniqid := r.Header.Get("X-Header-Id")
+
+	anoid := services.GenerateSessionStore(uniqid)
+
+	http.SetCookie(w,&http.Cookie{
+
+		Name: "ano-id",
+		Value: anoid,
+		Path: "/",
+		HttpOnly: true,
+		Secure: false,
+		SameSite: http.SameSiteStrictMode,
+})
+
 	   Render(w,"login.html")
 }
 
@@ -41,9 +57,23 @@ func Dashboardpage(w http.ResponseWriter, r *http.Request) {
 	Render(w,"dashboard.html")
 }
 
-func Indexpage(w http.ResponseWriter, r *http.Request) {
+func Indexpage(w http.ResponseWriter, r *http.Request) { 
+
+	uniqid := r.Header.Get("X-Header-Id")
+
+	anoid := services.GenerateSessionStore(uniqid)
+
+		http.SetCookie(w,&http.Cookie{
+
+		   Name: "ano-id",
+		   Value: anoid,
+		   HttpOnly: true,
+		   Secure: false,
+		   SameSite: http.SameSiteLaxMode,
+   })
+
 	 Render(w,"index.html")
-}
+	}
 
 func Aboutpage(w http.ResponseWriter, r *http.Request) {
 	Render(w,"about.html")
