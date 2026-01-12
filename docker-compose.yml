@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres 
+    network_mode: host
+    volumes:
+      - pgdata:/data
+   
+  minio:
+    image: quay.io/minio/minio
+    network_mode: host
+    command: server /data --console-address ":9001"
+    volumes:
+      - miniodata:/data
+
+  redis:
+    image: redis  
+    network_mode: host
+    volumes:
+      - redisdata:/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    network_mode: host
+       
+
+  klms-server:
+    image: klms
+    network_mode: host
+
+    
+
+
+
+
+
+volumes:
+  pgdata:
+  miniodata:
+  redisdata:
+
+
+
