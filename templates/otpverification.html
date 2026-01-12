@@ -855,17 +855,17 @@
                     return response.json();
                 })
                 .then(data => {
-                    // Success - show success animation and redirect
-                    handleSuccess();
+                    // Success - Redirect immediately without showing anything
+                    // handleSuccess(); // <--- COMMENTED OUT: No visual changes
                     
                     // Show success message
-                    showAlert('Account verified successfully! Redirecting...', 'success');
+                    // showAlert('Account verified successfully! Redirecting...', 'success'); // <--- COMMENTED OUT: No alert
                     
-                    // Redirect to the configured page after a short delay
-                    setTimeout(() => {
-                        // Use window.location.replace() instead of href for a proper redirect
-                        window.location.replace(REDIRECT_URL);
-                    }, REDIRECT_DELAY);
+                    // Redirect to the configured page immediately (no delay)
+                    // Use window.location.replace() instead of href for a proper redirect
+                    window.location.replace(REDIRECT_URL);
+                    
+                    // setTimeout(() => { window.location.replace(REDIRECT_URL); }, REDIRECT_DELAY); // <--- REMOVED DELAY
                 })
                 .catch(error => {
                     // Convert technical errors to user-friendly messages
@@ -886,7 +886,7 @@
                 });
             });
             
-            // Handle success animation and UI changes
+            // Handle success animation and UI changes (Not called anymore based on requirements)
             function handleSuccess() {
                 // Hide the form and header
                 otpForm.style.display = 'none';
@@ -894,7 +894,7 @@
                 otpResend.style.display = 'none';
                 
                 // Show the success checkmark
-                successCheckmark.classList.add('show');
+                // successCheckmark.classList.add('show'); // <--- COMMENTED OUT TO AVOID TICK MARK
                 
                 // Change the container background to success color
                 document.querySelector('.otp-container').style.backgroundColor = 'rgba(40, 167, 69, 0.05)';
