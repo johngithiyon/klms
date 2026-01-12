@@ -10,13 +10,20 @@ import (
 var RabbitConn *amqp.Connection
 
 func RabbitmqConnection() *amqp.Connection {
-	    conn,connerr := amqp.Dial(os.Getenv("RABBITMQ_CONN"))
 
-		if connerr != nil {
-			log.Fatal("Cannot make connection with rabbitmq",connerr)
+	   var conn *amqp.Connection
+	   var connerr error
+
+	   for i:=0;i<30;i++ {
+
+	    conn,connerr = amqp.Dial(os.Getenv("RABBITMQ_CONN"))
+
+		if connerr == nil {
+			return conn
 		}
-      
-		return conn
+	}
+
+	return  nil 
 		
 }
 
