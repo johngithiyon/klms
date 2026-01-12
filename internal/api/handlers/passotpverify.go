@@ -8,7 +8,10 @@ import (
 
 func Passotpverify(w http.ResponseWriter,r *http.Request) {
 
+	       if r.Method == http.MethodPost {
+
 	       userotp := r.FormValue("otp")
+
 
 		   exists, _ := redis.Redis.Exists(r.Context(), userotp).Result()
 
@@ -17,7 +20,8 @@ func Passotpverify(w http.ResponseWriter,r *http.Request) {
 			   return
 		   }
 
-		   responses.JsonSucess(w,"Email Verified")
+		   responses.JsonSucess(w,"otp Verified")
+	}	   
 
 
 }
