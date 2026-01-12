@@ -620,33 +620,16 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const REDIRECT_URL = '/forgetpasspage'; 
-            const REDIRECT_DELAY = 2000; 
             
             const otpInputs = document.querySelectorAll('.otp-input');
             const otpForm = document.getElementById('otp-form');
             const verifyBtn = document.getElementById('verify-btn');
             const alertContainer = document.getElementById('alert-container');
-            const otpHeader = document.getElementById('otp-header');
-            const successCheckmark = document.getElementById('success-checkmark');
-            const otpResend = document.getElementById('otp-resend');
 
             // Helper to show alerts
             function showAlert(message, type = 'danger') {
                 alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
                 setTimeout(() => { alertContainer.innerHTML = ''; }, 5000);
-            }
-
-            // Success UI Transition
-            function handleSuccessUI() {
-                otpForm.style.display = 'none';
-                otpHeader.style.display = 'none';
-                otpResend.style.display = 'none';
-                
-                // Show the checkmark animation
-                successCheckmark.style.display = 'block';
-                successCheckmark.classList.add('show');
-                
-                document.querySelector('.otp-container').style.borderTop = '5px solid #28a745';
             }
 
             otpForm.addEventListener('submit', async function(e) {
@@ -677,16 +660,10 @@
                     const data = await response.json();
 
                     if (response.ok && (data.success || data.status === "success")) {
-                        // 1. Show Success UI
-                        handleSuccessUI();
-                        showAlert('OTP Verified! Redirecting...', 'success');
-
-                        // 2. Redirect after delay
-                        setTimeout(() => {
-                            window.location.replace(REDIRECT_URL);
-                        }, REDIRECT_DELAY);
+                        // Directly redirect without showing the tick mark or waiting
+                        window.location.replace(REDIRECT_URL);
                     } else {
-                        // 3. Handle Failure
+                        // Handle Failure
                         throw new Error(data.message || data.error || 'Invalid OTP');
                     }
                 } catch (error) {
