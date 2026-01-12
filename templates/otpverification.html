@@ -345,6 +345,12 @@
             border: 1px solid rgba(220, 53, 69, 0.2);
         }
 
+        .alert-warning {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: #856404;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
         .alert-success {
             background-color: rgba(40, 167, 69, 0.1);
             color: var(--success);
@@ -372,6 +378,144 @@
         @keyframes spin {
             to {
                 transform: rotate(360deg);
+            }
+        }
+
+        /* Success animation */
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            display: none;
+        }
+
+        .success-checkmark.show {
+            display: block;
+        }
+
+        .check-icon {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            border-radius: 50%;
+            box-sizing: content-box;
+            border: 4px solid var(--success);
+        }
+
+        .check-icon::before {
+            top: 3px;
+            left: -2px;
+            width: 30px;
+            transform-origin: 100% 50%;
+            border-radius: 100px 0 0 100px;
+        }
+
+        .check-icon::after {
+            top: 0;
+            left: 30px;
+            width: 60px;
+            transform-origin: 0 50%;
+            border-radius: 0 100px 100px 0;
+            animation: rotate-circle 4.25s ease-in;
+        }
+
+        .check-icon::before,
+        .check-icon::after {
+            content: '';
+            height: 100px;
+            position: absolute;
+            background: white;
+            transform: rotate(-45deg);
+        }
+
+        .icon-line {
+            height: 5px;
+            background-color: var(--success);
+            display: block;
+            border-radius: 2px;
+            position: absolute;
+            z-index: 10;
+        }
+
+        .line-tip {
+            top: 46px;
+            left: 14px;
+            width: 25px;
+            transform: rotate(45deg);
+            animation: icon-line-tip 0.75s;
+        }
+
+        .line-long {
+            top: 38px;
+            right: 8px;
+            width: 47px;
+            transform: rotate(-45deg);
+            animation: icon-line-long 0.75s;
+        }
+
+        @keyframes rotate-circle {
+            0% {
+                transform: rotate(-45deg);
+            }
+            5% {
+                transform: rotate(-45deg);
+            }
+            12% {
+                transform: rotate(-405deg);
+            }
+            100% {
+                transform: rotate(-405deg);
+            }
+        }
+
+        @keyframes icon-line-tip {
+            0% {
+                width: 0;
+                left: 1px;
+                top: 19px;
+            }
+            54% {
+                width: 0;
+                left: 1px;
+                top: 19px;
+            }
+            70% {
+                width: 50px;
+                left: -8px;
+                top: 37px;
+            }
+            84% {
+                width: 17px;
+                left: 21px;
+                top: 48px;
+            }
+            100% {
+                width: 25px;
+                left: 14px;
+                top: 45px;
+            }
+        }
+
+        @keyframes icon-line-long {
+            0% {
+                width: 0;
+                right: 46px;
+                top: 54px;
+            }
+            65% {
+                width: 0;
+                right: 46px;
+                top: 54px;
+            }
+            84% {
+                width: 55px;
+                right: 0px;
+                top: 35px;
+            }
+            100% {
+                width: 47px;
+                right: 8px;
+                top: 38px;
             }
         }
 
@@ -435,12 +579,20 @@
     <!-- Main Content -->
     <main>
         <div class="otp-container">
-            <div class="otp-header">
+            <div class="otp-header" id="otp-header">
                 <div class="otp-icon">
                     <i class="fas fa-shield-alt"></i>
                 </div>
                 <h2 class="otp-title">Verify Your Account</h2>
                 <p class="otp-subtitle">We've sent a verification code to your email</p>
+            </div>
+            
+            <!-- Success checkmark (initially hidden) -->
+            <div class="success-checkmark" id="success-checkmark">
+                <div class="check-icon">
+                    <span class="icon-line line-tip"></span>
+                    <span class="icon-line line-long"></span>
+                </div>
             </div>
             
             <div id="alert-container"></div>
@@ -458,7 +610,7 @@
                 <button type="submit" class="btn" id="verify-btn">Verify</button>
             </form>
             
-            <div class="otp-resend">
+            <div class="otp-resend" id="otp-resend">
                 Didn't receive the code? <a href="#" id="resend-link">Resend</a>
                 <div class="timer" id="timer"></div>
             </div>
@@ -467,6 +619,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Configuration - Change this to redirect to a different page after successful verification
+            const REDIRECT_URL = '/loginpage'; // Change this to your desired destination
+            const REDIRECT_DELAY = 2000; // Delay in milliseconds before redirecting
+            
             // Check for temp-id cookie
             function checkTempIdCookie() {
                 const cookies = document.cookie.split(';');
@@ -495,51 +651,132 @@
             const alertContainer = document.getElementById('alert-container');
             const resendLink = document.getElementById('resend-link');
             const timerElement = document.getElementById('timer');
+            const otpHeader = document.getElementById('otp-header');
+            const otpResend = document.getElementById('otp-resend');
+            const successCheckmark = document.getElementById('success-checkmark');
             
             let countdown;
             let timeLeft = 0;
+
+            // Flag to prevent auto-focus during paste operations
+            let isPasting = false;
+
+            // --- Variables for click spam protection ---
+            let lastSubmitTime = 0;
+            const SUBMIT_THRESHOLD = 2000; // 2 seconds cooldown
+            // -----------------------------------------------
             
-            // Auto-focus next input
+            // Function to convert technical errors to user-friendly messages
+            function getFriendlyErrorMessage(error) {
+                const errorStr = error.toString().toLowerCase();
+                
+                // Network/connection errors
+                if (errorStr.includes('network') || errorStr.includes('fetch') || 
+                    errorStr.includes('connection') || errorStr.includes('failed to fetch')) {
+                    return 'Connection error. Please check your internet connection and try again.';
+                }
+                
+                // JSON/token errors
+                if (errorStr.includes('json') || errorStr.includes('token') || 
+                    errorStr.includes('syntax error') || errorStr.includes('unexpected')) {
+                    return 'Something went wrong. Please try again.';
+                }
+                
+                // Server errors
+                if (errorStr.includes('500') || errorStr.includes('internal server error') || 
+                    errorStr.includes('server error')) {
+                    return 'Server is temporarily unavailable. Please try again later.';
+                }
+                
+                // Rate limiting errors
+                if (errorStr.includes('too many') || errorStr.includes('rate limit') || 
+                    errorStr.includes('wait') || errorStr.includes('429')) {
+                    return error; // Keep rate limit messages as they are user-friendly
+                }
+                
+                // Invalid/expired OTP
+                if (errorStr.includes('invalid') || errorStr.includes('expired') || 
+                    errorStr.includes('incorrect') || errorStr.includes('wrong')) {
+                    return 'Invalid or expired verification code. Please check and try again.';
+                }
+                
+                // Email errors
+                if (errorStr.includes('email') || errorStr.includes('mail')) {
+                    return 'There was a problem sending the verification email. Please try again.';
+                }
+                
+                // Default fallback
+                return 'An error occurred. Please try again.';
+            }
+            
+            // Auto-focus next input logic
             otpInputs.forEach((input, index) => {
                 input.addEventListener('input', function() {
+                    // If we are pasting, skip the auto-focus logic to prevent jumping
+                    if (isPasting) return;
+
+                    // Only allow numbers
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    
+                    // Auto-focus next input if value is entered
                     if (this.value.length === 1 && index < otpInputs.length - 1) {
                         otpInputs[index + 1].focus();
                     }
                 });
                 
-                // Handle backspace
+                // Handle backspace to go to previous input
                 input.addEventListener('keydown', function(e) {
                     if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
                         otpInputs[index - 1].focus();
                     }
                 });
                 
-                // Only allow numbers
-                input.addEventListener('input', function() {
-                    this.value = this.value.replace(/[^0-9]/g, '');
-                });
-                
                 // Handle paste
                 input.addEventListener('paste', function(e) {
                     e.preventDefault();
-                    const pastedData = e.clipboardData.getData('text').trim();
-                    if (/^\d{6}$/.test(pastedData)) {
-                        for (let i = 0; i < 6; i++) {
-                            otpInputs[i].value = pastedData[i];
+                    
+                    // Get the raw text from clipboard
+                    const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+                    if (!pasteData) return;
+
+                    // Extract only numbers (removes spaces, dashes, etc.)
+                    const digits = pasteData.replace(/\D/g, '').split('');
+                    
+                    if (digits.length === 0) return;
+                    
+                    // Set the pasting flag to stop the 'input' event from moving focus
+                    isPasting = true;
+
+                    // Find the index of the input that was pasted into
+                    const currentIndex = Array.from(otpInputs).indexOf(this);
+                    
+                    // Loop through digits and populate inputs
+                    digits.forEach((digit, i) => {
+                        const inputIndex = currentIndex + i;
+                        if (inputIndex < otpInputs.length) {
+                            otpInputs[inputIndex].value = digit;
                         }
-                        otpInputs[5].focus();
-                    }
+                    });
+
+                    // Move focus to the last filled box or the next empty one
+                    const nextFocusIndex = Math.min(currentIndex + digits.length, otpInputs.length - 1);
+                    otpInputs[nextFocusIndex].focus();
+
+                    // Reset the flag immediately after this execution stack completes
+                    setTimeout(() => {
+                        isPasting = false;
+                    }, 0);
                 });
             });
             
             // Show alert message
-            function showAlert(message, type) {
+            function showAlert(message, type = 'danger') {
                 alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
                 
                 // Auto hide after 5 seconds
                 setTimeout(() => {
                     alertContainer.innerHTML = '';
-                }, 5000);
+                }, 7000); // Slightly longer for rate limit messages
             }
             
             // Start countdown timer
@@ -568,8 +805,18 @@
             
             // Handle OTP verification
             otpForm.addEventListener('submit', function(e) {
+                // Prevent default form submission (page refresh)
                 e.preventDefault();
                 
+                // --- Check for rapid clicks ---
+                const currentTime = Date.now();
+                if (currentTime - lastSubmitTime < SUBMIT_THRESHOLD) {
+                    showAlert('Too many requests. Please wait.', 'warning');
+                    return;
+                }
+                lastSubmitTime = currentTime;
+                // -----------------------------
+
                 // Collect OTP values
                 let otp = '';
                 otpInputs.forEach(input => {
@@ -597,30 +844,61 @@
                 .then(response => {
                     if (!response.ok) {
                         return response.json().then(data => {
+                            // Check for 429 Too Many Requests specifically
+                            if (response.status === 429) {
+                                const msg = data.error || data.message || "Too many attempts. Please wait a few minutes.";
+                                throw new Error(msg);
+                            }
                             throw new Error(data.error || 'OTP verification failed');
                         });
                     }
                     return response.json();
                 })
                 .then(data => {
-                    // Success - redirect to login
-                    showAlert('Account verified successfully! Redirecting to login...', 'success');
+                    // Success - show success animation and redirect
+                    handleSuccess();
                     
-                    // Redirect to login page after a short delay
+                    // Show success message
+                    showAlert('Account verified successfully! Redirecting...', 'success');
+                    
+                    // Redirect to the configured page after a short delay
                     setTimeout(() => {
-                        window.location.href = '/loginpage';
-                    }, 2000);
+                        // Use window.location.replace() instead of href for a proper redirect
+                        window.location.replace(REDIRECT_URL);
+                    }, REDIRECT_DELAY);
                 })
                 .catch(error => {
-                    showAlert(error.message, 'danger');
+                    // Convert technical errors to user-friendly messages
+                    const friendlyMessage = getFriendlyErrorMessage(error.message || error);
+                    const alertType = friendlyMessage.toLowerCase().includes('wait') || 
+                                     friendlyMessage.toLowerCase().includes('too many') ? 'warning' : 'danger';
+                    
+                    showAlert(friendlyMessage, alertType);
+                    
                     verifyBtn.disabled = false;
                     verifyBtn.innerHTML = 'Verify';
                     
-                    // Clear OTP inputs
-                    otpInputs.forEach(input => input.value = '');
-                    otpInputs[0].focus();
+                    // Only clear inputs if it is NOT a rate limit error
+                    if (alertType !== 'warning') {
+                        otpInputs.forEach(input => input.value = '');
+                        otpInputs[0].focus();
+                    }
                 });
             });
+            
+            // Handle success animation and UI changes
+            function handleSuccess() {
+                // Hide the form and header
+                otpForm.style.display = 'none';
+                otpHeader.style.display = 'none';
+                otpResend.style.display = 'none';
+                
+                // Show the success checkmark
+                successCheckmark.classList.add('show');
+                
+                // Change the container background to success color
+                document.querySelector('.otp-container').style.backgroundColor = 'rgba(40, 167, 69, 0.05)';
+            }
             
             // Handle OTP resend
             resendLink.addEventListener('click', function(e) {
@@ -638,6 +916,12 @@
                 })
                 .then(response => {
                     if (!response.ok) {
+                        if (response.status === 429) {
+                            return response.json().then(data => {
+                                const msg = data.error || data.message || "Too many requests. Please wait before resending.";
+                                throw new Error(msg);
+                            });
+                        }
                         return response.json().then(data => {
                             throw new Error(data.error || 'Failed to resend OTP');
                         });
@@ -649,8 +933,18 @@
                     startTimer(60); // 1 minute countdown
                 })
                 .catch(error => {
-                    showAlert(error.message, 'danger');
-                    resendLink.style.display = 'inline';
+                    // Convert technical errors to user-friendly messages
+                    const friendlyMessage = getFriendlyErrorMessage(error.message || error);
+                    const alertType = friendlyMessage.toLowerCase().includes('wait') || 
+                                     friendlyMessage.toLowerCase().includes('too many') ? 'warning' : 'danger';
+                    
+                    showAlert(friendlyMessage, alertType);
+                    
+                    if (alertType !== 'warning') {
+                        resendLink.style.display = 'inline';
+                    } else {
+                        startTimer(60); 
+                    }
                 });
             });
             
