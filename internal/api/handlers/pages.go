@@ -78,3 +78,15 @@ func Indexpage(w http.ResponseWriter, r *http.Request) {
 func Aboutpage(w http.ResponseWriter, r *http.Request) {
 	Render(w,"about.html")
 }
+
+func ValidEmailpage(w http.ResponseWriter, r *http.Request) {
+	Render(w,"validemail.html")
+}
+
+func Forgetotppage(w http.ResponseWriter, r *http.Request) {
+	Render(w,"forgetotp.html")
+}
+
+func Forgetpasspage(w http.ResponseWriter, r *http.Request) {
+	Render(w,"forgetpass.html")
+}
