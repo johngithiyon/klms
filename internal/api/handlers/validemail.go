@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"klms/internal/api/handlers/responses"
 	"klms/internal/api/services"
 	"klms/internal/api/storage/postgres"
@@ -24,7 +25,12 @@ func ValidEmail(w http.ResponseWriter,r *http.Request) {
 
 	scanerr := row.Scan(&no)
 
-	if scanerr != nil {
+	if scanerr != nil  {
+		if scanerr == sql.ErrNoRows {
+		responses.JsonError(w,"Invalid Email")
+        return 
+		}	
+
 		responses.JsonError(w,"Internal Server error")
 		return
    }
