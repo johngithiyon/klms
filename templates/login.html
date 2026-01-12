@@ -578,7 +578,8 @@
                             <input type="checkbox" id="remember" class="form-check-input">
                             <label for="remember" class="form-check-label">Remember</label>
                         </div>
-                        <a href="forgetpassword.html" class="forgot-password">Forget Password?</a>
+                        <!-- Changed href to email.html -->
+                        <a href="/validemailpage" class="forgot-password">Forget Password?</a>
                     </div>
                    
                     <button type="submit" class="btn" id="login-btn">SUBMIT</button>
@@ -753,11 +754,8 @@
                 rememberCheckbox.checked = true;
             }
            
-            // Handle forgot password link
-            document.querySelector('.forgot-password').addEventListener('click', function(e) {
-                e.preventDefault();
-                showAlert('Password reset functionality will be available soon.', 'info');
-            });
+            // Removed the forgot password event listener to allow default navigation
+            // The link will now navigate to email.html as specified in the href attribute
         });
     </script>
 </body>
