@@ -18,7 +18,9 @@ func Routes() {
 	http.Handle("/videosuploadpage",middleware.SessionMiddleware(http.HandlerFunc(handlers.Videouploadpage)))
 	http.HandleFunc("/logoutpage",handlers.Logoutpage)
 	http.Handle("/dashboardpage",middleware.SessionMiddleware(http.HandlerFunc(handlers.Dashboardpage)))
-
+	http.HandleFunc("/validemailpage",handlers.ValidEmailpage)
+	http.HandleFunc("/forgetotppage",handlers.Forgetotppage)
+    http.HandleFunc("/forgetpasspage",handlers.Forgetpasspage)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.Handle("/signup",middleware.Ratelimiting(http.HandlerFunc(handlers.SignupHandler))) 
