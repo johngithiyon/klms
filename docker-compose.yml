@@ -1,38 +1,55 @@
 services:
   postgres:
     image: postgres:16 
+    conatainer_name: klms-postgres
+    env_file: internal/api/config/.env
     network_mode: host
     volumes:
       - pgdata:/data
+    restart: unless-stopped  
    
    
   minio:
     image: quay.io/minio/minio
+    conatainer_name: klms-minio
+    env_file: internal/api/config/.env
     network_mode: host
     command: server /data --console-address ":9001"
     volumes:
       - miniodata:/data
+    restart: unless-stopped  
   
   redis:
     image: redis  
+    conatainer_name: klms-redis
+    env_file: internal/api/config/.env
     network_mode: host
     volumes:
       - redisdata:/data
+    restart: unless-stopped  
    
   rabbitmq:
     image: rabbitmq:3-management
+    conatainer_name: klms-rabbitmq
+    env_file: internal/api/config/.env
     network_mode: host
+    volumes:
+      - rabbitdata:/data
+    restart: unless-stopped  
 
 
   klms-server:
     build: .
     image: klms
+    conatiner_name: klms-server
     network_mode: host
+    restart: unless-stopped
    
 volumes:
   pgdata:
   miniodata:
   redisdata:
+  rabbitdata:
 
 
 
