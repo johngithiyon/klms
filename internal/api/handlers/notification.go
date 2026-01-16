@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"context"
+	"database/sql"
 	"klms/internal/api/storage/minio"
+	"klms/internal/api/storage/postgres"
 	"klms/internal/api/storage/redis"
 	"log"
 	"net/http"
@@ -15,7 +18,7 @@ import (
 
 func Notification(w http.ResponseWriter,  r *http.Request) {
 
-
+   var exists int
 
 	var upgrader = websocket.Upgrader{
 			
@@ -51,6 +54,38 @@ func Notification(w http.ResponseWriter,  r *http.Request) {
 			 websocketconn.WriteMessage(websocket.TextMessage,[]byte("Internal Server Error"))
 			return 
 	}
+
+	searchquery := "select 1 from pending_notifications where username = $1"
+
+	rows := postgres.Db.QueryRowContext(r.Context(),searchquery,username)
+
+   scanerr := rows.Scan(&exists)
+
+   if scanerr != nil && scanerr != sql.ErrNoRows {
+	     websocketconn.WriteMessage(websocket.TextMessage,[]byte("Internal Server Error"))
+		 return 
+   }
+
+   if exists == 1 {
+	    websocketconn.WriteMessage(websocket.TextMessage,[]byte("Video Uploaded Successfully ..."))
+
+		delres,delerr := postgres.Db.Exec("delete from pending_noitifications where username=$1",username)
+
+		if delerr != nil {
+			 
+			  websocketconn.WriteMessage(websocket.TextMessage,[]byte("Internal Server Error"))
+			  return 
+		}
+
+		num,_ :=  delres.RowsAffected() 
+
+		if num < 0 {
+                   
+			websocketconn.WriteMessage(websocket.TextMessage,[]byte("Internal Server Error"))
+			return 
+ 			  
+		}
+   }
  
  
 	coursename,coursenamefetcherr := redis.Redis.Get(r.Context(),username).Result()
@@ -85,10 +120,45 @@ func Notification(w http.ResponseWriter,  r *http.Request) {
 		  found = true
 		  break
 	 }
- 
-       
-        if found {
-			websocketconn.WriteMessage(websocket.TextMessage,[]byte("video uploaded successfully ..."))
-		}	
-		
+
+	
+	 go handleconnections(username,websocketconn,found)
+        
+}
+
+
+func handleconnections(username string,websocketconn *websocket.Conn,found bool) {
+	  
+	   if found {
+		   writerr  :=  websocketconn.WriteMessage(websocket.TextMessage,[]byte("Video Uploaded Successfully..."))
+
+		   if writerr != nil {
+			   
+			     res,inserterr := postgres.Db.Exec("insert into pending_notifications (username) values($1)",username)
+		   
+			     if inserterr != nil {
+					websocketconn.WriteMessage(websocket.TextMessage,[]byte("Internal Server Error"))
+					return 
+				 }
+
+				 num,_ :=  res.RowsAffected()
+
+				 if num < 0 {
+					  
+					 websocketconn.WriteMessage(websocket.TextMessage,[]byte("Internal Server Error"))
+					 return 
+				 }
+				}
+
+		    redisdelerr := redis.Redis.Del(context.Background(),username).Err()
+			
+			if redisdelerr != nil {
+				    
+				websocketconn.WriteMessage(websocket.TextMessage,[]byte("Internal Server Error"))
+				return 
+				   
+			}
+	   }
+
+	     
 }
