@@ -2,10 +2,13 @@ package middleware
 
 import (
 	"errors"
+	"klms/internal/api/handlers/responses"
 	"klms/internal/api/storage/redis"
 	"log"
 	"net/http"
 	"time"
+
+	"golang.org/x/time/rate"
 )
  
 func SessionMiddleware(next http.Handler) http.Handler {
@@ -90,7 +93,6 @@ func Ratelimiting(next http.Handler) http.Handler {
 
 			 } 
 
-
 		} else {
 			 
 			count , fetcherr :=  redis.Redis.Incr(r.Context(),"rate"+username.Value).Result()
@@ -119,3 +121,21 @@ func Ratelimiting(next http.Handler) http.Handler {
 		next.ServeHTTP(w,r)
 	   })
 }
+
+func Globalimit(next http.Handler) http.Handler {
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+	    var limiter = rate.NewLimiter(500,1000)
+
+		if !limiter.Allow() {
+			responses.JsonError(w,"Too Many Request")
+			return 
+		}
+
+		next.ServeHTTP(w,r)
+	})
+
+
+}
+
