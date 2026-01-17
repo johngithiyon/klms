@@ -194,7 +194,16 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 		  if txcommiterr != nil {
 			    responses.JsonError(w,"Internal Server Error")
 				return
-		  }
+		  }									
+
+
+		 rediscmd := redis.Redis.Set(r.Context(),Username,coursename,0)
+
+		 if rediscmd.Err() != nil  {
+			  
+			    responses.JsonError(w,"Internal Server Error")
+				return
+		 }	 
 
 	 w.Header().Set("Content-Type", "application/json")
 	 responses.JsonSucess(w,"video is received processing...") 
