@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	resp "klms/internal/api/handlers/responses"
 	"klms/internal/api/services"
 	"klms/internal/api/storage/postgres"
 	"klms/internal/api/storage/redis"
 	"net/http"
+	"time"
+
 	"golang.org/x/crypto/bcrypt"
-	resp "klms/internal/api/handlers/responses"
 )
 
 
@@ -45,11 +47,12 @@ func Loginhandler(w http.ResponseWriter, r *http.Request) {
 				 Value: id,
 				 HttpOnly: true,
 				 Secure: false,
+				 Expires: time.Now().Add(7 * 24 * time.Hour),
 				 SameSite: http.SameSiteStrictMode,
 		 })
 
 		     redisconn := redis.Redis
-			 redisconn.Set(r.Context(),id,username,0)
+			 redisconn.Set(r.Context(),id,username, 7*24*time.Hour)
 
 			 resp.JsonSucess(w,"Login Successful")
 			 return
