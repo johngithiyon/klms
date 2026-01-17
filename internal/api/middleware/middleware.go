@@ -10,6 +10,8 @@ import (
 
 	"golang.org/x/time/rate"
 )
+
+var limiter = rate.NewLimiter(500,1000)
  
 func SessionMiddleware(next http.Handler) http.Handler {
 
@@ -125,8 +127,6 @@ func Ratelimiting(next http.Handler) http.Handler {
 func Globalimit(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-	    var limiter = rate.NewLimiter(500,1000)
 
 		if !limiter.Allow() {
 			responses.JsonError(w,"Too Many Request")
