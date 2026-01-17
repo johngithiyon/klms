@@ -128,6 +128,15 @@ func Notification(w http.ResponseWriter,  r *http.Request) {
 
 
 func handleconnections(username string,websocketconn *websocket.Conn,found bool) {
+
+	defer func() {
+          
+		panicerr := recover()
+	
+		if panicerr != nil {
+		  log.Println("Recovered from the panic",panicerr)
+		}
+	}()
 	  
 	   if found {
 		   writerr  :=  websocketconn.WriteMessage(websocket.TextMessage,[]byte("Video Uploaded Successfully..."))
