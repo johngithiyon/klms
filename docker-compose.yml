@@ -44,6 +44,13 @@ services:
     conatiner_name: klms-server
     network_mode: host
     restart: unless-stopped
+
+
+  nginx-server:
+    image: nginx
+    container_name: klms-nginx
+    network_mode: host
+    restart: unless-stopped  
    
 volumes:
   pgdata:
