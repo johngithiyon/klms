@@ -19,11 +19,12 @@ import (
 func Notification(w http.ResponseWriter,  r *http.Request) {
 
    var exists int
+  
 
 	var upgrader = websocket.Upgrader{
 			
 		CheckOrigin: func(r *http.Request) bool {
-			return r.Header.Get("Origin")  == "" || r.Header.Get("origin") == "localhost:8080"
+			return r.Header.Get("Origin") == "http://localhost"
 		},
 	    
 	}
