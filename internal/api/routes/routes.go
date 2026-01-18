@@ -7,7 +7,7 @@ import (
 )
 
 func Routes() {
-	http.HandleFunc("/",handlers.Indexpage)
+	http.Handle("/",middleware.Globalimit(http.HandlerFunc(handlers.Indexpage)))
 	http.HandleFunc("/aboutpage",handlers.Aboutpage)
 	http.HandleFunc("/signuppage",handlers.Signuppage)
 	http.HandleFunc("/otpverifypage",handlers.Otpverifypage)
@@ -40,4 +40,5 @@ func Routes() {
 	http.HandleFunc("/uploadvideo",handlers.VideoUploader)
 	http.HandleFunc("/dashboard",handlers.Dashboard)
 	http.HandleFunc("/certificate", handlers.DownloadCertificateHandler)
+	http.HandleFunc("/notify",handlers.Notification)		
 }
