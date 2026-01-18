@@ -3,7 +3,6 @@ package handlers
 import (
 	"klms/internal/api/services"
 	"net/http"
-	"os"
 )
 		
 func Signuppage(w http.ResponseWriter,r *http.Request) {
@@ -16,7 +15,7 @@ func Otpverifypage(w http.ResponseWriter,r *http.Request) {
 
 func Loginpage(w http.ResponseWriter, r *http.Request) {
 
-	uniqid := os.Getenv("UNIQUE_ID")
+	uniqid := r.Header.Get("X-Header-Id")
 
 	anoid := services.GenerateSessionStore(uniqid)
 
@@ -60,7 +59,7 @@ func Dashboardpage(w http.ResponseWriter, r *http.Request) {
 
 func Indexpage(w http.ResponseWriter, r *http.Request) { 
 
-	uniqid := os.Getenv("UNIQUE_ID")
+	uniqid := r.Header.Get("X-Header-Id")
 
 	anoid := services.GenerateSessionStore(uniqid)
 
