@@ -27,7 +27,7 @@ func SignupHandler(w http.ResponseWriter,r *http.Request)  {
 
 	  usernamepattern := "^[0-9]{2}[A-Za-z]{3}[0-9]{3}$"
 	  emailPattern := `^[0-9]{2}[a-z]{3}[0-9]{3}@kamarajengg\.edu\.in$`
-	  passwordPattern := `^[0-9]{6}$`
+	  passwordPattern := `^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$`
 
 	  //valid check for the staff signup
 
