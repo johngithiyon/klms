@@ -147,9 +147,9 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 
 		videoname := file[i].Filename
 
+		coursename := strings.ReplaceAll(coursename," ","")
+
 		video_url := "http://localhost:9000/klms-videostreaming/"+coursename+"/"+videoname+"/master.m3u8"
-
-
 	  
 	  videodetailinsertsql := `INSERT INTO course_videos (course_id, video_title, video_filename,video_description,video_url)
 							   VALUES ($1, $2,$3,$4,$5)  RETURNING video_id;`
@@ -162,7 +162,7 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 			return
 	  }
 
-	  coursename := strings.ReplaceAll(coursename," ","")
+	  coursename = strings.ReplaceAll(coursename," ","")
 
 	  objname := coursename+"/"+file[i].Filename
 
