@@ -13,6 +13,8 @@ func Roles(w http.ResponseWriter,r *http.Request) {
     if r.Method == http.MethodGet {
 
     var role string
+	var courses[]string
+
 	sessionid,cokkierr := r.Cookie("session-id")
 
 	if cokkierr != nil {
@@ -33,11 +35,29 @@ func Roles(w http.ResponseWriter,r *http.Request) {
 
 	row.Scan(&role)
 
+    coursessql := "select title from courses where uploaded_by=$1"
+
+	rows,scanerr  := postgres.Db.QueryContext(r.Context(),coursessql,username)
+
+	if scanerr != nil {
+		 responses.JsonError(w,"Internal Server Error")
+		 return 
+	}
+
+	var coursename string 
+
+	for rows.Next() {
+		 rows.Scan(&coursename)
+
+		 courses = append(courses, coursename)
+	}
+
     w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(
-		map[string]string {
+		map[string]interface{} {
 
 			"role":role,
+			 "deleteaccess":courses,
 		},
 	)
   }
