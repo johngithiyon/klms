@@ -138,13 +138,13 @@
             width: 100%;
         }
 
-        /* Main Content */
+        /* Main Content - Reduced padding */
         main {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px 0;
+            padding: 20px 0; /* Reduced from 40px */
         }
 
         .otp-container {
@@ -153,7 +153,7 @@
             background-color: white;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
-            padding: 30px;
+            padding: 20px; /* Reduced from 30px */
             animation: fadeInUp 0.8s ease-out;
         }
 
@@ -170,20 +170,20 @@
 
         .otp-header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px; /* Reduced from 25px */
         }
 
         .otp-icon {
-            width: 70px;
-            height: 70px;
+            width: 60px; /* Reduced from 70px */
+            height: 60px; /* Reduced from 70px */
             background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
-            margin: 0 auto 15px;
+            font-size: 1.5rem; /* Reduced from 1.8rem */
+            margin: 0 auto 12px; /* Reduced from 15px */
             animation: pulse 2s infinite;
         }
 
@@ -203,25 +203,25 @@
         }
 
         .otp-title {
-            font-size: 1.5rem;
+            font-size: 1.4rem; /* Reduced from 1.5rem */
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 8px; /* Reduced from 10px */
             color: var(--dark);
         }
 
         .otp-subtitle {
             color: var(--gray);
-            font-size: 0.9rem;
+            font-size: 0.85rem; /* Reduced from 0.9rem */
         }
 
         .otp-form {
-            margin-bottom: 20px;
+            margin-bottom: 15px; /* Reduced from 20px */
         }
 
         .otp-inputs {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-bottom: 15px; /* Reduced from 20px */
         }
 
         .otp-input {
@@ -293,7 +293,7 @@
 
         .otp-resend {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 15px; /* Reduced from 20px */
             color: var(--gray);
             font-size: 0.85rem;
         }
@@ -311,9 +311,15 @@
             display: inline-block;
         }
 
+        .otp-resend a.disabled {
+            color: var(--gray);
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+
         .timer {
             text-align: center;
-            margin-top: 8px;
+            margin-top: 6px; /* Reduced from 8px */
             font-weight: 500;
             color: var(--primary);
             font-size: 0.85rem;
@@ -322,7 +328,7 @@
         .alert {
             padding: 10px 15px;
             border-radius: var(--border-radius);
-            margin-bottom: 15px;
+            margin-bottom: 12px; /* Reduced from 15px */
             font-size: 0.85rem;
             animation: shake 0.5s ease-in-out;
         }
@@ -381,148 +387,10 @@
             }
         }
 
-        /* Success animation */
-        .success-checkmark {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 20px;
-            display: none;
-        }
-
-        .success-checkmark.show {
-            display: block;
-        }
-
-        .check-icon {
-            width: 80px;
-            height: 80px;
-            position: relative;
-            border-radius: 50%;
-            box-sizing: content-box;
-            border: 4px solid var(--success);
-        }
-
-        .check-icon::before {
-            top: 3px;
-            left: -2px;
-            width: 30px;
-            transform-origin: 100% 50%;
-            border-radius: 100px 0 0 100px;
-        }
-
-        .check-icon::after {
-            top: 0;
-            left: 30px;
-            width: 60px;
-            transform-origin: 0 50%;
-            border-radius: 0 100px 100px 0;
-            animation: rotate-circle 4.25s ease-in;
-        }
-
-        .check-icon::before,
-        .check-icon::after {
-            content: '';
-            height: 100px;
-            position: absolute;
-            background: white;
-            transform: rotate(-45deg);
-        }
-
-        .icon-line {
-            height: 5px;
-            background-color: var(--success);
-            display: block;
-            border-radius: 2px;
-            position: absolute;
-            z-index: 10;
-        }
-
-        .line-tip {
-            top: 46px;
-            left: 14px;
-            width: 25px;
-            transform: rotate(45deg);
-            animation: icon-line-tip 0.75s;
-        }
-
-        .line-long {
-            top: 38px;
-            right: 8px;
-            width: 47px;
-            transform: rotate(-45deg);
-            animation: icon-line-long 0.75s;
-        }
-
-        @keyframes rotate-circle {
-            0% {
-                transform: rotate(-45deg);
-            }
-            5% {
-                transform: rotate(-45deg);
-            }
-            12% {
-                transform: rotate(-405deg);
-            }
-            100% {
-                transform: rotate(-405deg);
-            }
-        }
-
-        @keyframes icon-line-tip {
-            0% {
-                width: 0;
-                left: 1px;
-                top: 19px;
-            }
-            54% {
-                width: 0;
-                left: 1px;
-                top: 19px;
-            }
-            70% {
-                width: 50px;
-                left: -8px;
-                top: 37px;
-            }
-            84% {
-                width: 17px;
-                left: 21px;
-                top: 48px;
-            }
-            100% {
-                width: 25px;
-                left: 14px;
-                top: 45px;
-            }
-        }
-
-        @keyframes icon-line-long {
-            0% {
-                width: 0;
-                right: 46px;
-                top: 54px;
-            }
-            65% {
-                width: 0;
-                right: 46px;
-                top: 54px;
-            }
-            84% {
-                width: 55px;
-                right: 0px;
-                top: 35px;
-            }
-            100% {
-                width: 47px;
-                right: 8px;
-                top: 38px;
-            }
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
             .otp-container {
-                padding: 25px 20px;
+                padding: 18px 15px; /* Reduced from 25px 20px */
             }
 
             .otp-input {
@@ -587,14 +455,6 @@
                 <p class="otp-subtitle">We've sent a verification code to your email</p>
             </div>
             
-            <!-- Success checkmark (initially hidden) -->
-            <div class="success-checkmark" id="success-checkmark">
-                <div class="check-icon">
-                    <span class="icon-line line-tip"></span>
-                    <span class="icon-line line-long"></span>
-                </div>
-            </div>
-            
             <div id="alert-container"></div>
             
             <form id="otp-form" class="otp-form">
@@ -621,7 +481,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Configuration - Change this to redirect to a different page after successful verification
             const REDIRECT_URL = '/loginpage'; // Change this to your desired destination
-            const REDIRECT_DELAY = 2000; // Delay in milliseconds before redirecting
+            const REDIRECT_DELAY = 500; // Minimal delay for better UX
             
             // Check for temp-id cookie
             function checkTempIdCookie() {
@@ -653,10 +513,11 @@
             const timerElement = document.getElementById('timer');
             const otpHeader = document.getElementById('otp-header');
             const otpResend = document.getElementById('otp-resend');
-            const successCheckmark = document.getElementById('success-checkmark');
             
             let countdown;
             let timeLeft = 0;
+            let resendAttempts = 0;
+            const MAX_RESEND_ATTEMPTS = 2;
 
             // Flag to prevent auto-focus during paste operations
             let isPasting = false;
@@ -791,7 +652,11 @@
                     if (timeLeft <= 0) {
                         clearInterval(countdown);
                         timerElement.textContent = '';
-                        resendLink.style.display = 'inline';
+                        
+                        // Only show resend link if attempts are not exhausted
+                        if (resendAttempts < MAX_RESEND_ATTEMPTS) {
+                            resendLink.style.display = 'inline';
+                        }
                     }
                 }, 1000);
             }
@@ -855,17 +720,10 @@
                     return response.json();
                 })
                 .then(data => {
-                    // Success - Redirect immediately without showing anything
-                    // handleSuccess(); // <--- COMMENTED OUT: No visual changes
-                    
-                    // Show success message
-                    // showAlert('Account verified successfully! Redirecting...', 'success'); // <--- COMMENTED OUT: No alert
-                    
-                    // Redirect to the configured page immediately (no delay)
-                    // Use window.location.replace() instead of href for a proper redirect
-                    window.location.replace(REDIRECT_URL);
-                    
-                    // setTimeout(() => { window.location.replace(REDIRECT_URL); }, REDIRECT_DELAY); // <--- REMOVED DELAY
+                    // Success - redirect immediately without any visual feedback
+                    setTimeout(() => {
+                        window.location.replace(REDIRECT_URL);
+                    }, REDIRECT_DELAY);
                 })
                 .catch(error => {
                     // Convert technical errors to user-friendly messages
@@ -886,30 +744,22 @@
                 });
             });
             
-            // Handle success animation and UI changes (Not called anymore based on requirements)
-            function handleSuccess() {
-                // Hide the form and header
-                otpForm.style.display = 'none';
-                otpHeader.style.display = 'none';
-                otpResend.style.display = 'none';
-                
-                // Show the success checkmark
-                // successCheckmark.classList.add('show'); // <--- COMMENTED OUT TO AVOID TICK MARK
-                
-                // Change the container background to success color
-                document.querySelector('.otp-container').style.backgroundColor = 'rgba(40, 167, 69, 0.05)';
-            }
-            
             // Handle OTP resend
             resendLink.addEventListener('click', function(e) {
                 e.preventDefault();
+                
+                // Check if max attempts reached
+                if (resendAttempts >= MAX_RESEND_ATTEMPTS) {
+                    showAlert(`Maximum resend attempts (${MAX_RESEND_ATTEMPTS}) reached. Please try again later.`, 'warning');
+                    return;
+                }
                 
                 // Disable resend link
                 resendLink.style.display = 'none';
                 
                 // Send resend request to backend
                 fetch('/resendotp', {
-                    method: 'POST',
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
                     }
@@ -930,7 +780,12 @@
                 })
                 .then(data => {
                     showAlert('OTP has been resent to your email', 'success');
-                    startTimer(60); // 1 minute countdown
+                    
+                    // Increment resend attempts
+                    resendAttempts++;
+                    
+                    // Start timer again
+                    startTimer(60); // 60 seconds countdown
                 })
                 .catch(error => {
                     // Convert technical errors to user-friendly messages
