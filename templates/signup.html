@@ -322,10 +322,11 @@
         }
 
         .password-requirements {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--warning);
             margin-top: 5px;
             display: none;
+            line-height: 1.4;
         }
 
         .btn {
@@ -535,8 +536,9 @@
                             <i class="fas fa-lock"></i>
                             <i class="fas fa-eye-slash toggle-password" id="toggle-password"></i>
                         </div>
+                        <!-- Updated Password Requirements Text -->
                         <div class="password-requirements" id="password-requirements">
-                            Password must be exactly 6 digits
+                            Must be 8+ chars, include Uppercase, Lowercase, Number, and Special character (e.g., !@#$).
                         </div>
                         <div class="form-hint" id="password-hint"></div>
                     </div>
@@ -639,7 +641,7 @@
             });
             
             passwordInput.addEventListener('blur', function() {
-                const patterns = ["^[0-9]{6}$"];  // Password pattern (same for both)
+                // UPDATED PATTERN to match Go backend: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$                 const patterns = ["^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"];  
                 validateInput(this, patterns, passwordHint);
             });
             
@@ -662,7 +664,9 @@
                 const staffUsernamePattern = "^[A-Za-z]+@(cse|it|ece|eee|bt|mech|ads|civil)$";
                 const studentEmailPattern = `^[0-9]{2}[a-z]{3}[0-9]{3}@kamarajengg\.edu\.in$`;
                 const staffEmailPattern = `^[A-Za-z]+(cse|it|ece|eee|bt|mech|ads|civil)@kamarajengg\.edu\.in$`;
-                const passwordPattern = "^[0-9]{6}$";
+                
+                // UPDATED PATTERN to match Go backend
+                const passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
                 
                 const isStudentUsername = new RegExp(studentUsernamePattern).test(usernameInput.value);
                 const isStaffUsername = new RegExp(staffUsernamePattern).test(usernameInput.value);
@@ -675,7 +679,7 @@
                 const isValidStaff = isStaffUsername && isStaffEmail && isPasswordValid;
                 
                 if (!isValidStudent && !isValidStaff) {
-                    showAlert('Please enter valid username, email, and password format.', 'danger');
+                    showAlert('Please enter valid username, email, and password format (8+ chars, upper, lower, number, special char).', 'danger');
                     return;
                 }
                 
@@ -714,7 +718,7 @@
                             showAlert(message || 'Registration successful! Please check your email for OTP.', 'success');
                             signupForm.reset();
 
-                            // ✅ REDIRECT AFTER SUCCESS (ADD ONLY THIS)
+                            // ✅ REDIRECT AFTER SUCCESS
                             setTimeout(() => {
                                 window.location.href = "/otpverifypage";   // change page name if needed
                             }, 2000);
