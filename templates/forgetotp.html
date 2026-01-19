@@ -311,6 +311,12 @@
             display: inline-block;
         }
 
+        .otp-resend a.disabled {
+            color: var(--gray);
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+
         .timer {
             text-align: center;
             margin-top: 8px;
@@ -621,16 +627,166 @@
         document.addEventListener('DOMContentLoaded', function() {
             const REDIRECT_URL = '/forgetpasspage'; 
             
+            // Get email from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const userEmail = urlParams.get('email');
+            
             const otpInputs = document.querySelectorAll('.otp-input');
             const otpForm = document.getElementById('otp-form');
             const verifyBtn = document.getElementById('verify-btn');
             const alertContainer = document.getElementById('alert-container');
-
+            const resendLink = document.getElementById('resend-link');
+            const timerElement = document.getElementById('timer');
+            
+            // Timer variables
+            let countdown;
+            let timeLeft = 60; // 60 seconds countdown
+            let resendAttempts = 0;
+            const MAX_RESEND_ATTEMPTS = 2;
+            
+            // Flag to prevent auto-focus during paste operations
+            let isPasting = false;
+            
             // Helper to show alerts
             function showAlert(message, type = 'danger') {
                 alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
                 setTimeout(() => { alertContainer.innerHTML = ''; }, 5000);
             }
+            
+            // Start countdown timer
+            function startTimer() {
+                timeLeft = 60;
+                resendLink.classList.add('disabled');
+                
+                countdown = setInterval(() => {
+                    if (timeLeft <= 0) {
+                        clearInterval(countdown);
+                        timerElement.textContent = '';
+                        
+                        // Only show resend link if attempts are not exhausted
+                        if (resendAttempts < MAX_RESEND_ATTEMPTS) {
+                            resendLink.classList.remove('disabled');
+                        }
+                        return;
+                    }
+                    
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    timerElement.textContent = `You can request a new code in ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    timeLeft--;
+                }, 1000);
+            }
+            
+            // Handle paste functionality
+            otpInputs.forEach((input, index) => {
+                input.addEventListener('input', function() {
+                    // If we are pasting, skip the auto-focus logic to prevent jumping
+                    if (isPasting) return;
+
+                    // Only allow numbers
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    
+                    // Auto-focus next input if value is entered
+                    if (this.value.length === 1 && index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+                });
+                
+                // Handle backspace to go to previous input
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && !this.value && index > 0) {
+                        otpInputs[index - 1].focus();
+                    }
+                });
+                
+                // Handle paste
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    
+                    // Get the raw text from clipboard
+                    const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+                    if (!pasteData) return;
+
+                    // Extract only numbers (removes spaces, dashes, etc.)
+                    const digits = pasteData.replace(/\D/g, '').split('');
+                    
+                    if (digits.length === 0) return;
+                    
+                    // Set the pasting flag to stop the 'input' event from moving focus
+                    isPasting = true;
+
+                    // Find the index of the input that was pasted into
+                    const currentIndex = Array.from(otpInputs).indexOf(this);
+                    
+                    // Loop through digits and populate inputs
+                    digits.forEach((digit, i) => {
+                        const inputIndex = currentIndex + i;
+                        if (inputIndex < otpInputs.length) {
+                            otpInputs[inputIndex].value = digit;
+                        }
+                    });
+
+                    // Move focus to the last filled box or the next empty one
+                    const nextFocusIndex = Math.min(currentIndex + digits.length, otpInputs.length - 1);
+                    otpInputs[nextFocusIndex].focus();
+
+                    // Reset the flag immediately after this execution stack completes
+                    setTimeout(() => {
+                        isPasting = false;
+                    }, 0);
+                });
+            });
+            
+            // Initialize timer on page load
+            startTimer();
+            
+            // Resend OTP functionality
+            resendLink.addEventListener('click', async function(e) {
+                e.preventDefault();
+                
+                // Check if max attempts reached
+                if (resendAttempts >= MAX_RESEND_ATTEMPTS) {
+                    showAlert(`Maximum resend attempts (${MAX_RESEND_ATTEMPTS}) reached. Please try again later.`, 'warning');
+                    return;
+                }
+                
+                // Show loading state
+                resendLink.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                resendLink.classList.add('disabled');
+                
+                try {
+                    // The backend relies on cookies for authentication, 
+                    // but we still send email as query parameter for consistency
+                    const response = await fetch(`/resendotp`, {
+                        method: 'GET',
+                        credentials: 'include'  // Important: sends cookies
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        showAlert('A new verification code has been sent to your email', 'success');
+                        // Clear OTP inputs
+                        otpInputs.forEach(input => input.value = '');
+                        otpInputs[0].focus();
+                        
+                        // Increment resend attempts
+                        resendAttempts++;
+                        
+                        // Restart timer
+                        startTimer();
+                    } else {
+                        showAlert(data.error || 'Failed to resend code. Please try again.', 'danger');
+                        resendLink.classList.remove('disabled');
+                    }
+                } catch (error) {
+                    showAlert('Network error. Please try again.', 'danger');
+                    resendLink.classList.remove('disabled');
+                } finally {
+                    // Reset resend link text
+                    resendLink.innerHTML = 'Resend';
+                }
+            });
 
             otpForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -654,7 +810,7 @@
                     const response = await fetch('/passotpverify', {
                         method: 'POST',
                         body: formData,
-                        credentials: 'include' 
+                        credentials: 'include'  // Important: sends cookies
                     });
 
                     const data = await response.json();
@@ -675,21 +831,6 @@
                     otpInputs.forEach(input => input.value = '');
                     otpInputs[0].focus();
                 }
-            });
-
-            // Handle Input Auto-focus (Existing logic)
-            otpInputs.forEach((input, index) => {
-                input.addEventListener('input', function() {
-                    this.value = this.value.replace(/[^0-9]/g, '');
-                    if (this.value.length === 1 && index < otpInputs.length - 1) {
-                        otpInputs[index + 1].focus();
-                    }
-                });
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Backspace' && !this.value && index > 0) {
-                        otpInputs[index - 1].focus();
-                    }
-                });
             });
         });
     </script>
