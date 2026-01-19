@@ -123,9 +123,8 @@ func Progress(w http.ResponseWriter, r *http.Request) {
     if err == sql.ErrNoRows {
         // Insert new record
         _, insertErr := postgres.Db.ExecContext(r.Context(),
-            "INSERT INTO course_progress(course_name, student_name, no_of_videos, progress, status) VALUES ($1,$2,$3,$4,$5)",
-            coursetitle, username, totalVideos, progress, status,
-        )
+            "INSERT INTO course_progress(course_name, student_name, no_of_videos, progress, status,course_id) VALUES ($1,$2,$3,$4,$5,$6)",
+            coursetitle, username, totalVideos, progress, status,courseID)
         if insertErr != nil {
             log.Println("Insert course_progress error:", insertErr)
             responses.JsonError(w, "Internal Server Error")
