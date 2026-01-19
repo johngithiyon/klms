@@ -104,7 +104,7 @@ func SignupHandler(w http.ResponseWriter,r *http.Request)  {
 
 		Name: "temp-id",
 		 Value: id,
-		 Expires: time.Now().Add(5 * time.Minute),
+		 Expires: time.Now().Add(30 * time.Minute),
  })
 
 	     signupdetails := map[string]interface{} {
@@ -125,7 +125,7 @@ func SignupHandler(w http.ResponseWriter,r *http.Request)  {
 			return
 	   }
 
-	    conn.Expire(r.Context(),id,5*time.Minute)
+	    conn.Expire(r.Context(),id,30*time.Minute)
 
 
 		anoid := services.GenerateSessionStore(username)
