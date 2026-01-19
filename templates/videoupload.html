@@ -218,7 +218,7 @@
             transform: translateY(-2px);
         }
 
-        .form-control option {
+        .form-control.option {
             padding: 10px;
         }
 
@@ -505,6 +505,31 @@
             border: 1px solid rgba(40, 167, 69, 0.2);
         }
 
+        .field-error {
+            border-color: var(--danger) !important;
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
         /* Loading spinner */
         .spinner {
             display: inline-block;
@@ -574,6 +599,7 @@
                 <div class="form-group">
                     <label for="course-name" class="form-label">Course Name</label>
                     <input type="text" id="course-name" name="coursename" class="form-control" required>
+                    <div class="error-message" id="course-name-error">Course name should not contain numbers</div>
                 </div>
                 
                 <div class="form-group">
@@ -584,6 +610,7 @@
                 <div class="form-group">
                     <label for="category" class="form-label">Category</label>
                     <input type="text" id="category" name="category" class="form-control" placeholder="Enter course category" required>
+                    <div class="error-message" id="category-error">Category should not contain numbers</div>
                 </div>
                 
                 <div class="video-upload-section">
@@ -626,6 +653,67 @@
                 }, 5000);
             }
             
+            // Function to validate that input doesn't contain numbers
+            function validateNoNumbers(input, errorElement) {
+                const value = input.value.trim();
+                const hasNumbers = /\d/.test(value);
+                
+                if (hasNumbers) {
+                    input.classList.add('field-error');
+                    errorElement.classList.add('show');
+                    return false;
+                } else {
+                    input.classList.remove('field-error');
+                    errorElement.classList.remove('show');
+                    return true;
+                }
+            }
+            
+            // Function to prevent number input
+            function preventNumberInput(event) {
+                const key = event.key;
+                // Allow backspace, delete, tab, escape, enter
+                if ([8, 9, 27, 13].indexOf(event.keyCode) !== -1 ||
+                    // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                    (event.keyCode === 65 && (event.ctrlKey === true || event.metaKey === true)) ||
+                    (event.keyCode === 67 && (event.ctrlKey === true || event.metaKey === true)) ||
+                    (event.keyCode === 86 && (event.ctrlKey === true || event.metaKey === true)) ||
+                    (event.keyCode === 88 && (event.ctrlKey === true || event.metaKey === true)) ||
+                    // Allow home, end, left, right
+                    (event.keyCode >= 35 && event.keyCode <= 39)) {
+                    return;
+                }
+                
+                // Ensure that it's a number and stop the keypress
+                if ((event.shiftKey || (event.keyCode < 48 || event.keyCode > 57)) && (event.keyCode < 96 || event.keyCode > 105)) {
+                    // Not a number, allow
+                    return;
+                }
+                
+                // It's a number, prevent
+                event.preventDefault();
+            }
+            
+            // Set up validation for course name
+            const courseNameInput = document.getElementById('course-name');
+            const courseNameError = document.getElementById('course-name-error');
+            
+            courseNameInput.addEventListener('input', function() {
+                validateNoNumbers(this, courseNameError);
+            });
+            
+            courseNameInput.addEventListener('keydown', preventNumberInput);
+            
+            // Set up validation for category
+            const categoryInput = document.getElementById('category');
+            const categoryError = document.getElementById('category-error');
+            
+            categoryInput.addEventListener('input', function() {
+                validateNoNumbers(this, categoryError);
+            });
+            
+            categoryInput.addEventListener('keydown', preventNumberInput);
+            
             // Add video item
             function addVideoItem() {
                 videoCount++;
@@ -643,6 +731,7 @@
                         <div class="video-item-field">
                             <label for="video-title-${videoCount}">Video Title</label>
                             <input type="text" id="video-title-${videoCount}" name="videotitle" class="form-control" required>
+                            <div class="error-message" id="video-title-error-${videoCount}">Video title should not contain numbers</div>
                         </div>
                         <div class="video-item-field">
                             <label for="video-description-${videoCount}">Video Description</label>
@@ -667,6 +756,16 @@
                 `;
                 
                 videoList.appendChild(videoItem);
+                
+                // Add event listener to video title input for number validation
+                const titleInput = document.getElementById(`video-title-${videoCount}`);
+                const titleError = document.getElementById(`video-title-error-${videoCount}`);
+                
+                titleInput.addEventListener('input', function() {
+                    validateNoNumbers(this, titleError);
+                });
+                
+                titleInput.addEventListener('keydown', preventNumberInput);
                 
                 // Add event listener to file input
                 const fileInput = document.getElementById(`video-file-${videoCount}`);
@@ -725,18 +824,31 @@
             uploadForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
+                // Validate course name and category
+                const isCourseNameValid = validateNoNumbers(courseNameInput, courseNameError);
+                const isCategoryValid = validateNoNumbers(categoryInput, categoryError);
+                
                 // Check if at least one video is added
                 if (videoCount === 0) {
                     showAlert('Please add at least one video to the course.', 'danger');
                     return;
                 }
                 
-                // Check if all video fields are filled
+                // Check if all video fields are filled and valid
                 let allFieldsFilled = true;
+                let allVideoTitlesValid = true;
+                
                 for (let i = 1; i <= videoCount; i++) {
                     const titleInput = document.getElementById(`video-title-${i}`);
+                    const titleError = document.getElementById(`video-title-error-${i}`);
                     const descriptionInput = document.getElementById(`video-description-${i}`);
                     const fileInput = document.getElementById(`video-file-${i}`);
+                    
+                    // Validate video title has no numbers
+                    const isTitleValid = validateNoNumbers(titleInput, titleError);
+                    if (!isTitleValid) {
+                        allVideoTitlesValid = false;
+                    }
                     
                     if (!titleInput || !titleInput.value.trim() || 
                         !descriptionInput || !descriptionInput.value.trim() || 
@@ -744,6 +856,11 @@
                         allFieldsFilled = false;
                         break;
                     }
+                }
+                
+                if (!isCourseNameValid || !isCategoryValid || !allVideoTitlesValid) {
+                    showAlert('Please fix the validation errors before submitting.', 'danger');
+                    return;
                 }
                 
                 if (!allFieldsFilled) {
