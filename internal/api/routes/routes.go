@@ -40,5 +40,6 @@ func Routes() {
 	http.HandleFunc("/uploadvideo",handlers.VideoUploader)
 	http.HandleFunc("/dashboard",handlers.Dashboard)
 	http.HandleFunc("/certificate", handlers.DownloadCertificateHandler)
-	http.HandleFunc("/notify",handlers.Notification)		
+	http.HandleFunc("/notify",handlers.Notification)
+	http.HandleFunc("/editprofile",handlers.Editprofile)		
 }
