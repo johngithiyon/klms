@@ -714,17 +714,26 @@
        
         const urlParams = new URLSearchParams(window.location.search);
         const courseId = urlParams.get('id');
-       
+   
         // Track watched videos
         const watchedVideos = new Set();
         let courseStatus = 'not completed';
         let courseTitle = '';
-       
+   
+        // Check if course is already completed from localStorage
+        const completedCourses = JSON.parse(localStorage.getItem('completedCourses') || '{}');
+        if (completedCourses[courseId]) {
+            certificateBtn.disabled = false;
+            courseStatus = 'completed';
+            // Set progress UI to 100% if course is already completed
+            updateProgressUI(100, 100, 'completed');
+        }
+   
         function showAlert(message, type) {
             alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
             setTimeout(() => { alertContainer.innerHTML = ''; }, 5000);
         }
-       
+   
         function updateProgressUI(progress, total, status) {
             const percentage = total > 0 ? Math.round((progress / total) * 100) : 0;
             progressBar.style.width = `${percentage}%`;
@@ -734,22 +743,27 @@
             // Update course status
             courseStatus = status;
            
-            // Enable certificate button if course is completed
+            // Enable certificate button if course is completed and keep it enabled
             if (status === 'completed') {
                 certificateBtn.disabled = false;
+                
+                // Save to localStorage to remember completion status
+                const completedCourses = JSON.parse(localStorage.getItem('completedCourses') || '{}');
+                completedCourses[courseId] = true;
+                localStorage.setItem('completedCourses', JSON.stringify(completedCourses));
             }
         }
-       
+   
         function loadVideos() {
             if (!courseId) {
                 showAlert('Course ID is missing. Please go back to the courses page.', 'danger');
                 return;
             }
-       
+   
             loadingSpinner.style.display = 'flex';
             videoList.innerHTML = '';
             emptyState.style.display = 'none';
-       
+   
             fetch(`/videos?id=${courseId}`, { method: 'GET', credentials: 'include' })
             .then(res => {
                 if (!res.ok) throw new Error('Failed to load videos');
@@ -761,20 +775,20 @@
                     emptyState.style.display = 'block';
                     return;
                 }
-       
+   
                 // Store course title
                 if (videos.length > 0) {
                     courseTitle = videos[0].CourseTitle || 'Course';
                 }
-       
+   
                 videos.forEach((video, index) => {
                     // Assign a unique ID for each video
                     video.id = video.VideoID; // ensure backend sends a unique ID field
-       
+   
                     const videoItem = document.createElement('div');
                     videoItem.className = 'video-item';
                     if (index === 0) videoItem.classList.add('active');
-       
+   
                     videoItem.innerHTML = `
                         <div class="video-thumbnail">
                             <i class="fas fa-play-circle"></i>
@@ -784,11 +798,11 @@
                             <div class="video-item-description">${video.Description}</div>
                         </div>
                     `;
-       
+   
                     videoItem.addEventListener('click', () => playVideo(video, videoItem));
                     videoList.appendChild(videoItem);
                 });
-       
+   
                 // Auto-play first video
                 if (videos.length > 0) playVideo(videos[0], videoList.firstChild);
             })
@@ -798,7 +812,7 @@
                 showAlert('Failed to load videos.', 'danger');
             });
         }
-       
+   
         function playVideo(video, videoItemElement) {
             // Highlight active video
             document.querySelectorAll('.video-item').forEach(item => item.classList.remove('active'));
@@ -853,6 +867,7 @@
                         method: 'POST',
                         credentials: 'include'
                     })
+
                     .then(res => {
                         if (!res.ok) throw new Error('Failed to update progress');
                         return res.json();
@@ -868,13 +883,13 @@
                 }
             });
         }
-       
+
+        console.log("This is courseid",courseId)
+   
         // Certificate button click handler - Direct download
         certificateBtn.addEventListener('click', function() {
             // Create URL with course name parameter
             const url = `/certificate`;
-
-            console.log(courseTitle)
            
             // Create a temporary link element to trigger download
             const link = document.createElement('a');
@@ -886,7 +901,7 @@
            
             showAlert('Certificate download started!', 'success');
         });
-       
+   
         loadVideos();
     });
     </script>
