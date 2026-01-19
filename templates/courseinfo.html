@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KLMS - Courses</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Favicon (Dynamic icon in the tab) -->
+    <link id="favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+
     <style>
         :root {
             --primary: #5dade2;
@@ -82,6 +86,7 @@
             font-weight: 700;
             color: var(--primary);
             animation: fadeIn 1s ease-out;
+            cursor: pointer;
         }
 
         .logo i {
@@ -104,11 +109,13 @@
         .nav-links {
             display: flex;
             list-style: none;
+            align-items: center;
             animation: fadeIn 1.2s ease-out;
         }
 
         .nav-links li {
             margin-left: 20px;
+            position: relative;
         }
 
         .nav-links a {
@@ -117,6 +124,9 @@
             font-weight: 500;
             transition: var(--transition);
             position: relative;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .nav-links a::after {
@@ -414,21 +424,83 @@
         }
 
         @keyframes shake {
-            0%, 100% {
-                transform: translateX(0);
-            }
-            10%, 30%, 50%, 70%, 90% {
-                transform: translateX(-5px);
-            }
-            20%, 40%, 60%, 80% {
-                transform: translateX(5px);
-            }
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
 
         .alert-danger {
             background-color: rgba(220, 53, 69, 0.1);
             color: var(--danger);
             border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        /* Toast Notifications (Popups) */
+        #toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            min-width: 300px;
+            background-color: var(--white);
+            color: var(--dark);
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            padding: 15px 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast i {
+            font-size: 1.2rem;
+            margin-right: 15px;
+        }
+
+        .toast-content {
+            flex-grow: 1;
+        }
+
+        .toast-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 3px;
+        }
+
+        .toast-message {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .toast-close {
+            cursor: pointer;
+            color: var(--gray);
+            opacity: 0.5;
+            transition: 0.2s;
+        }
+
+        .toast-close:hover {
+            opacity: 1;
+            color: var(--dark);
         }
 
         /* Search Results Highlight */
@@ -438,6 +510,10 @@
             border-radius: 3px;
             font-weight: 600;
         }
+        .header-container {
+            position: relative;
+        }
+
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -481,6 +557,16 @@
             .search-wrapper {
                 max-width: 100%;
             }
+            
+            #toast-container {
+                left: 20px;
+                right: 20px;
+                top: 70px;
+            }
+            
+            .toast {
+                min-width: auto;
+            }
         }
     </style>
 </head>
@@ -488,10 +574,11 @@
     <!-- Header -->
     <header>
         <div class="container header-container">
-            <div class="logo">
+            <div class="logo" onclick="window.location.href='/dashboardpage'">
                 <i class="fas fa-graduation-cap"></i>
                 <span>KLMS</span>
             </div>
+            
             <nav>
                 <ul class="nav-links">
                     <li><a href="/dashboardpage">Dashboard</a></li>
@@ -550,10 +637,19 @@
         </div>
     </main>
 
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Hidden Audio Element for Notification Sound -->
+    <!-- Using a simple base64 encoded 'ding' sound for self-containment -->
+    <audio id="notification-sound" preload="auto">
+        <source src="https://notificationsounds.com/storage/sounds/file-sounds-1150-pristine.mp3" type="audio/mpeg">
+    </audio>
+
+
     <script type="module">
-        import BASE_URL from "../static/js/config.js"
         document.addEventListener('DOMContentLoaded', function() {
-            // Elements
+            // --- Elements ---
             const coursesContainer = document.getElementById('courses-container');
             const loadingSpinner = document.getElementById('loading');
             const emptyState = document.getElementById('empty-state');
@@ -562,10 +658,157 @@
             const searchInput = document.getElementById('search-input');
             const clearIcon = document.getElementById('clear-icon');
             const searchInfo = document.getElementById('search-info');
+            const toastContainer = document.getElementById('toast-container');
+            const notificationSound = document.getElementById('notification-sound');
             
+            // Base title for tab notification
+            const baseTitle = document.title;
+
+            // --- FAVICON SETUP ---
+            // These are SVG data URIs for the icons.
+            const normalIcon = "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>";
+            const alertIcon = "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%23dc3545%22/></svg>";
+            const faviconLink = document.getElementById('favicon');
+
+            // 🔓 Unlock notification sound after first user interaction (browser requirement)
+            document.body.addEventListener('click', () => {
+                notificationSound.play().then(() => {
+                    notificationSound.pause();
+                    notificationSound.currentTime = 0;
+                }).catch(() => {});
+            }, { once: true });
+
             // Store all courses for filtering
             let allCourses = [];
             
+
+            // Show a Toast Notification (Popup)
+            function showToast(title, message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                let iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+                
+                toast.innerHTML = `
+                    <i class="fas ${iconClass}"></i>
+                    <div class="toast-content">
+                        <div class="toast-title">${title}</div>
+                        <div class="toast-message">${message}</div>
+                    </div>
+                    <i class="fas fa-times toast-close"></i>
+                `;
+                
+                toastContainer.appendChild(toast);
+                
+                // Trigger animation
+                requestAnimationFrame(() => {
+                    toast.classList.add('show');
+                });
+
+                // Close on click
+                toast.querySelector('.toast-close').addEventListener('click', () => {
+                    hideToast(toast);
+                });
+
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    hideToast(toast);
+                }, 5000);
+            }
+
+            function hideToast(toast) {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if(toast.parentElement) {
+                        toast.parentElement.removeChild(toast);
+                    }
+                }, 400); // Wait for transition
+            }
+
+            function playNotificationSound() {
+                notificationSound.currentTime = 0;
+
+                // 🔊 Outlook-like volume (not too loud)
+                notificationSound.volume = 0.6;
+
+                const playPromise = notificationSound.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {});
+                }
+            }
+
+            function showNotificationDot() {
+                // Change the Favicon to a small red dot
+                faviconLink.href = alertIcon;
+            }
+
+            function hideNotificationDot() {
+                // Revert the Favicon to the normal icon
+                faviconLink.href = normalIcon;
+            }
+
+            // 🔕 Hide notification dot when user clicks anywhere
+            document.addEventListener('click', () => {
+                hideNotificationDot();
+            });
+
+
+
+            // --- WebSocket Logic for Real-Time Notifications ---
+            function initWebSocket() {
+                // Determine protocol (ws vs wss)
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const host = window.location.host;
+                const wsUrl = `${protocol}//${host}/notify`;
+
+                console.log("Connecting to WebSocket:", wsUrl);
+                
+                // Connect. Cookies are sent automatically with the request by the browser
+                const socket = new WebSocket(wsUrl);
+
+                socket.onopen = function(e) {
+                    console.log("WebSocket Connection Established");
+                };
+
+                socket.onmessage = function(event) {
+                    const data = event.data;
+                    console.log("WebSocket Message Received:", data);
+
+                    // Check if the message indicates a successful upload
+                    // This string matches the one sent by your Go handler
+                    if (data.includes("Video Uploaded Successfully")) {
+                        playNotificationSound();
+                        showNotificationDot();
+
+                        showToast("Success", "A new video has been uploaded successfully!", "success");
+
+                        loadCourses();
+                    } else {
+                        // Handle other messages or errors from server
+                        console.warn("Unhandled notification:", data);
+                        if(data.includes("Internal Server Error")) {
+                            showToast("Error", "Something went wrong with the notification.", "error");
+                        }
+                    }
+                };
+
+                socket.onclose = function(event) {
+                    if (event.wasClean) {
+                        console.log(`WebSocket closed cleanly, code=${event.code} reason=${event.reason}`);
+                    } else {
+                        console.log('WebSocket disconnected'); // e.g., server process killed or network down
+                        // Optional: Implement a reconnect strategy here
+                        setTimeout(initWebSocket, 5000); 
+                    }
+                };
+
+                socket.onerror = function(error) {
+                    console.log(`WebSocket error: ${error.message}`);
+                };
+            }
+
+            // --- UI/Existing Functions ---
+
             // Show alert message
             function showAlert(message, type) {
                 alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
@@ -578,7 +821,7 @@
             
             // Check user role and show upload button if teacher
             function checkUserRole() {
-                fetch(`${BASE_URL}/role`, {
+                fetch('/role', {
                     method: 'GET',
                     credentials: 'include'
                 })
@@ -604,10 +847,16 @@
             function loadCourses() {
                 // Show loading spinner
                 loadingSpinner.style.display = 'flex';
-                coursesContainer.innerHTML = '';
+                
+                // Don't clear immediately if we are refreshing to avoid flickering
+                // But if it's the first load (allCourses is empty), clear it
+                if(allCourses.length === 0) {
+                    coursesContainer.innerHTML = '';
+                }
+                
                 emptyState.style.display = 'none';
                 
-                fetch(`${BASE_URL}/courses`, {
+                fetch('/courses', {
                     method: 'GET',
                     credentials: 'include'
                 })
@@ -625,7 +874,13 @@
                     allCourses = courses;
                     
                     // Display courses
-                    displayCourses(courses);
+                    // Keep the current search filter active if it exists
+                    const searchTerm = searchInput.value.trim();
+                    if(searchTerm.length > 0) {
+                        filterCourses();
+                    } else {
+                        displayCourses(courses);
+                    }
                 })
                 .catch(error => {
                     console.error('Error loading courses:', error);
@@ -691,7 +946,7 @@
                     clearIcon.classList.remove('visible');
                 }
                 
-                // If search term is less than 3 characters, show all courses
+                // If search term is less than 1 characters, show all courses
                 if (searchTerm.length < 1) {
                     displayCourses(allCourses);
                     return;
@@ -703,10 +958,7 @@
                            course.description.toLowerCase().includes(searchTerm.toLowerCase());
                 });
                 
-                // Sort courses by relevance:
-                // 1. Exact title matches first
-                // 2. Title matches (partial)
-                // 3. Description matches
+                // Sort courses by relevance
                 const sortedCourses = [...filteredCourses].sort((a, b) => {
                     const aTitleLower = a.title.toLowerCase();
                     const bTitleLower = b.title.toLowerCase();
@@ -745,7 +997,6 @@
                     return 0;
                 });
                 
-                
                 displayCourses(sortedCourses);
             }
             
@@ -770,6 +1021,9 @@
             // Initialize page
             checkUserRole();
             loadCourses();
+
+            // Initialize WebSocket Connection
+            initWebSocket();
         });
     </script>
 </body>
