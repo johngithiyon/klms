@@ -7,6 +7,7 @@ import (
 	"klms/internal/api/storage/minio"
 	"klms/internal/api/storage/postgres"
 	"klms/internal/api/storage/redis"
+	"log"
 	"net/http"
 	"time"
 )
@@ -18,6 +19,7 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
     var name string
 	var email string
 	var imagename string
+	var coursesname []string
 	 
 	sessionid,cokkierr := r.Cookie("session-id")
 
@@ -40,6 +42,7 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 	   scanerr := row.Scan(&name)
 
 	   if scanerr != nil {
+		     log.Println("Name err",scanerr)
 		     responses.JsonError(w,"Internal Server Error")
 			 return 
 	   }
@@ -66,6 +69,7 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 
 		}
 		if imagescanerr != nil && imagename != ""  {
+			log.Println("iamge err",imagescanerr)
 			responses.JsonError(w,"Internal Server Error")
 			return 
 		}
@@ -74,17 +78,36 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 
 
 	   if urlerr != nil {
+		  log.Println("Url err",urlerr)
 	      responses.JsonError(w,"Internal Server Error")
 		  return
 	   }
 
+	   var coursename string 
+
+	   coursenamequery := "select course_name from course_progress where student_name=$1 and status='completed'"
+
+	   courserows,coursescanerr := postgres.Db.QueryContext(r.Context(),coursenamequery,username)
+
+       if coursescanerr !=  nil {
+		           log.Println("course err",coursescanerr)
+		           responses.JsonError(w,"Internal Server Error")
+				   return 
+	   }	
+
+	   for courserows.Next() {
+		   
+		      courserows.Scan(&coursename)
+			  coursesname = append(coursesname, coursename)
+	   }
 
 	   json.NewEncoder(w).Encode(
-		    map[string]string {
+		    map[string]interface{} {
 				  "name":name,
 				  "username":username,
 				  "email":email,
 				  "imageurl":url.String(),
+				 "coursename":coursesname,
 
 			},
 	   )
