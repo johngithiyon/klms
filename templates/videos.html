@@ -705,6 +705,13 @@
                 if (videos.length > 0) {
                     courseTitle = videos[0].CourseTitle || 'Course';
                     totalVideos = videos.length;
+                    
+                    // Check if course is already completed and enable certificate button if so
+                    if (videos[0].Status === 'completed') {
+                        certificateBtn.disabled = false;
+                        courseStatus = 'completed';
+                        showAlert('You have already completed this course. You can generate your certificate now!', 'success');
+                    }
                 }
        
                 videos.forEach((video, index) => {
