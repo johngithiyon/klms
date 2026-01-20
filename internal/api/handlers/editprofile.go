@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"klms/internal/api/errors"
 	"klms/internal/api/handlers/responses"
 	"klms/internal/api/storage/minio"
@@ -8,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	mini "github.com/minio/minio-go/v7"
 )
@@ -106,7 +108,22 @@ func Editprofile(w http.ResponseWriter,  r *http.Request) {
 	   return
   }
 
-  responses.JsonSucess(w,"Edited Successfully")
+  url , urlerr := minio.Minio.PresignedGetObject(r.Context(),"klms-profiles",objname,5*time.Minute,nil)
+
+
+  if urlerr != nil {
+	 log.Println("Url err",urlerr)
+	 responses.JsonError(w,"Internal Server Error")
+	 return
+  }
+
+  json.NewEncoder(w).Encode(
+	map[string]string {
+		  "imageurl":url.String(),
+		  "message":"Edited sucessfully",
+
+	},
+)
 
 
 	   }
