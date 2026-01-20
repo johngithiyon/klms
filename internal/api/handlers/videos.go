@@ -35,7 +35,7 @@ func Videos(w http.ResponseWriter, r *http.Request) {
 
 			   id := r.URL.Query().Get("id")
 
-			   searchquery := "select video_title,video_description,video_url from course_videos where course_id=$1"	   
+			   searchquery := "select video_title,video_description,video_url,notes from course_videos where course_id=$1"	   
 
 			   statusquery := "select status from course_progress where student_name=$1 and course_id=$2"
 
@@ -69,7 +69,7 @@ func Videos(w http.ResponseWriter, r *http.Request) {
 
 			   for rows.Next() {
 
-				      rows.Scan(&v.Title,&v.Description,&v.Videourl)
+				      rows.Scan(&v.Title,&v.Description,&v.Videourl,&v.Notesurl)
 					  videos = append(videos, v)
 			   }
 
