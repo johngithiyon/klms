@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KLMS - User Profile</title>
+    <title>KLMS - User Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -21,6 +21,11 @@
             --border-radius: 12px;
             --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             --transition: all 0.4s ease;
+            --gradient-1: linear-gradient(135deg, #5dade2, #3498db);
+            --gradient-2: linear-gradient(135deg, #3498db, #2980b9);
+            --gradient-3: linear-gradient(135deg, rgba(93, 173, 226, 0.1), rgba(52, 152, 219, 0.2));
+            --gradient-4: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
+            --gradient-5: linear-gradient(135deg, rgba(93, 173, 226, 0.05), rgba(52, 152, 219, 0.1));
         }
 
         * {
@@ -31,116 +36,162 @@
         }
 
         body {
-            background: linear-gradient(135deg, #c7ddf7, #e3f0ff);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
             color: var(--dark);
             line-height: 1.6;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        /* Profile card */
-        .profile-card {
-            background-color: var(--white);
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            width: 100%;
-            max-width: 800px;
-            padding: 50px;
+            padding-top: 80px;
             position: relative;
-            z-index: 1;
-            animation: fadeInUp 0.8s ease-out;
-            overflow: hidden;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Card decoration */
-        .profile-card::before {
-            content: '';
-            position: absolute;
+        body::before {
+            content: "";
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 8px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(93, 173, 226, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 80% 60%, rgba(52, 152, 219, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 40% 80%, rgba(93, 173, 226, 0.05) 0%, transparent 20%);
+            z-index: -1;
         }
 
-        /* Header with logo */
-        .card-header {
+        /* Header */
+        .page-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: var(--white);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
+            padding: 15px 40px;
+            transition: all 0.3s ease;
         }
 
         .klms-logo {
             display: flex;
             align-items: center;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+
+        .klms-logo:hover {
+            transform: translateY(-2px);
         }
 
         .klms-logo i {
-            font-size: 2.5rem;
+            font-size: 2rem;
             color: var(--primary);
-            margin-right: 15px;
+            margin-right: 10px;
+            transition: all 0.3s ease;
         }
 
         .klms-logo span {
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             font-weight: 700;
+            color: var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-nav a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 5px 0;
+            transition: var(--transition);
+        }
+
+        .header-nav a:hover {
             color: var(--primary);
         }
 
-        /* Main content */
+        /* Main Content Container */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+            position: relative;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 40px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
         .profile-content {
             display: flex;
             align-items: flex-start;
-            gap: 30px;
-            margin-bottom: 40px;
+            gap: 40px;
+            margin-bottom: 30px;
         }
 
-        /* Profile image */
+        /* Profile Image */
         .profile-image-container {
             flex-shrink: 0;
+            position: relative;
         }
 
         .profile-image {
             width: 200px;
             height: 200px;
             border-radius: 50%;
-            background: linear-gradient(135deg, rgba(93, 173, 226, 0.1), rgba(52, 152, 219, 0.2));
+            background: var(--gradient-3);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             border: 5px solid var(--white);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             position: relative;
-            z-index: 1;
+            transition: all 0.3s ease;
         }
 
         .profile-image::before {
-            content: '';
+            content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: var(--gradient-1);
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            opacity: 0;
             z-index: -1;
-            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .profile-image:hover::before {
+            opacity: 0.3;
+        }
+
+        .profile-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         }
 
         .profile-image img {
@@ -148,74 +199,81 @@
             height: 100%;
             object-fit: cover;
             border-radius: 50%;
-            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-image:hover img {
+            transform: scale(1.1);
         }
 
         .profile-image i {
             font-size: 5rem;
-            color: var(--white);
-            z-index: 1;
+            color: var(--primary);
         }
 
-        /* User information */
+        /* User Information */
         .user-info {
             flex: 1;
             padding-top: 20px;
         }
 
-        .user-name {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: var(--dark);
-        }
-
-        .user-username {
-            font-size: 1.2rem;
-            color: var(--gray);
-            margin-bottom: 30px;
-            font-weight: 500;
-        }
-
-        /* User details */
         .user-details {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
         }
 
         .detail-item {
             display: flex;
             align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: var(--gradient-5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .detail-item:hover {
+            background: var(--gradient-3);
+            transform: translateX(5px);
         }
 
         .detail-icon {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
-            background-color: rgba(93, 173, 226, 0.1);
+            background: var(--gradient-3);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 15px;
+            margin-right: 20px;
             color: var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .detail-item:hover .detail-icon {
+            background: var(--gradient-1);
+            color: white;
+            transform: scale(1.1);
         }
 
         .detail-icon i {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
         }
 
         .detail-text {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             color: var(--dark);
         }
 
         .detail-text strong {
             color: var(--gray);
-            margin-right: 8px;
+            margin-right: 10px;
+            font-weight: 600;
         }
 
-        /* Action buttons */
+        /* Action Buttons */
         .profile-actions {
             display: flex;
             gap: 20px;
@@ -235,24 +293,112 @@
             justify-content: center;
             text-decoration: none;
             min-width: 180px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn i {
             margin-right: 10px;
             font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover i {
+            transform: rotate(15deg);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: var(--gradient-1);
             color: var(--white);
             box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
         }
 
         .btn-primary:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.4);
         }
 
+        /* Completed Courses Section */
+        .completed-courses-section {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .completed-courses-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: var(--dark);
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .section-title::after {
+            display: none; /* REMOVED: The blue line under the title */
+        }
+
+        .courses-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .course-item {
+            background: var(--gradient-5);
+            color: var(--dark);
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            border: 1px solid rgba(93, 173, 226, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .course-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(93, 173, 226, 0.2);
+            background: var(--gradient-3);
+        }
+
+        .no-courses-message {
+            color: var(--gray);
+            font-style: italic;
+            padding: 20px;
+            background: rgba(93, 173, 226, 0.05);
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        /* Additional styles needed for functionality */
         .btn-danger {
             background: linear-gradient(135deg, var(--danger), #c82333);
             color: var(--white);
@@ -261,7 +407,166 @@
 
         .btn-danger:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+            box-shadow: 0 10px 20px rgba(220, 53, 69, 0.4);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .image-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .image-preview {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 4px solid var(--light-gray);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light);
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-preview i {
+            font-size: 4rem;
+            color: var(--gray);
+        }
+
+        .file-input-container {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-container input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--gradient-3);
+            color: var(--dark);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .file-input-label:hover {
+            background: var(--gradient-1);
+            color: var(--white);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            color: var(--white);
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 3000;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--danger);
         }
 
         /* Loading spinner */
@@ -269,66 +574,49 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 200px;
+            height: 60vh;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin: 20px;
         }
 
         .spinner {
             display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(93, 173, 226, 0.3);
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(93, 173, 226, 0.3);
             border-radius: 50%;
             border-top-color: var(--primary);
             animation: spin 1s ease-in-out infinite;
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
-
+        
         /* Responsive */
         @media (max-width: 768px) {
-            .profile-card {
-                padding: 30px 20px;
-                max-width: 500px;
+            body {
+                padding-top: 70px;
             }
-            
-            .card-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
+            .page-header {
+                padding: 10px 20px;
             }
-            
+            .container {
+                padding: 20px;
+            }
             .profile-content {
                 flex-direction: column;
                 gap: 30px;
                 text-align: center;
             }
-            
-            .profile-image {
-                width: 150px;
-                height: 150px;
-            }
-            
-            .user-info {
-                padding-top: 0;
-            }
-            
-            .user-name {
-                font-size: 2rem;
-            }
-            
             .user-details {
                 align-items: center;
             }
-            
             .profile-actions {
                 flex-direction: column;
-                width: 100%;
             }
-            
             .btn {
                 width: 100%;
             }
@@ -336,83 +624,132 @@
     </style>
 </head>
 <body>
+    <!-- Header with Logo -->
+    <header class="page-header">
+        <a href="/dashboardpage" class="klms-logo">
+            <i class="fas fa-graduation-cap"></i>
+            <span>KLMS</span>
+        </a>
+        <nav class="header-nav">
+            <a href="/coursespage">Courses</a>
+            <a href="/logout">Logout</a>
+        </nav>
+    </header>
+
     <div id="loading-spinner" class="spinner-container">
         <div class="spinner"></div>
     </div>
 
-    <div class="profile-card" id="profile-card" style="display: none;">
-        <div class="card-header">
-            <div class="klms-logo">
-                <i class="fas fa-graduation-cap"></i>
-                <span>KLMS</span>
-            </div>
-        </div>
-        
-        <div class="profile-content">
-            <div class="profile-image-container">
-                <div class="profile-image" id="profile-image">
-                    <i class="fas fa-user"></i>
+    <main class="container" id="main-content" style="display: none;">
+        <!-- User Profile Card -->
+        <div class="profile-card">
+            <div class="profile-content">
+                <div class="profile-image-container">
+                    <div class="profile-image" id="profile-image">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+                
+                <div class="user-info">
+                    <div class="user-details">
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <div class="detail-text">
+                                <strong>Full Name:</strong> <span id="name-detail">Loading...</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="detail-text">
+                                <strong>Username:</strong> <span id="username-detail">Loading...</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="detail-text">
+                                <strong>Email:</strong> <span id="email-detail">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div class="user-info">
-                <h2 class="user-name" id="name-value">Loading...</h2>
-                <div class="user-username" id="username-value">@Loading...</div>
-                
-                <div class="user-details">
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-id-card"></i>
-                        </div>
-                        <div class="detail-text">
-                            <strong>Full Name:</strong> <span id="name-detail">Loading...</span>
-                        </div>
-                    </div>
-                    
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="detail-text">
-                            <strong>Username:</strong> <span id="username-detail">Loading...</span>
-                        </div>
-                    </div>
-                    
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <div class="detail-text">
-                            <strong>Email:</strong> <span id="email-detail">Loading...</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="profile-actions">
+                <button class="btn btn-primary" id="edit-profile-btn">
+                    <i class="fas fa-user-edit"></i> Edit Profile
+                </button>
             </div>
         </div>
         
-        <div class="profile-actions">
-            <button class="btn btn-primary" id="edit-profile-btn">
-                <i class="fas fa-user-edit"></i> Edit Profile
-            </button>
-            <button class="btn btn-danger" id="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
+        <!-- Completed Courses Section -->
+        <div class="completed-courses-section">
+            <h3 class="section-title">Completed Courses</h3>
+            <div id="courses-list" class="courses-list">
+                <!-- Courses will be dynamically inserted here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for Profile Image Upload -->
+    <div id="profile-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Update Profile Picture</h2>
+                <button class="close-modal" id="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="image-upload-container">
+                    <div class="image-preview" id="image-preview">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="file-input-container">
+                        <input type="file" id="file-input" accept="image/png, image/jpeg">
+                        <label for="file-input" class="file-input-label">Choose Image</label>
+                    </div>
+                    <p style="color: var(--gray); font-size: 0.9rem; text-align: center;">
+                        Allowed formats: PNG, JPEG<br>
+                        Maximum file size: 1MB
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="cancel-btn">Cancel</button>
+                <button class="btn btn-primary" id="upload-btn">Upload</button>
+            </div>
         </div>
     </div>
+
+    <!-- Notification Container -->
+    <div id="notification" class="notification"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Elements
             const loadingSpinner = document.getElementById('loading-spinner');
-            const profileCard = document.getElementById('profile-card');
+            const mainContent = document.getElementById('main-content');
             const profileImage = document.getElementById('profile-image');
-            const nameValue = document.getElementById('name-value');
-            const usernameValue = document.getElementById('username-value');
             const usernameDetail = document.getElementById('username-detail');
             const nameDetail = document.getElementById('name-detail');
             const emailDetail = document.getElementById('email-detail');
-            const logoutBtn = document.getElementById('logout-btn');
+            const coursesList = document.getElementById('courses-list');
             const editProfileBtn = document.getElementById('edit-profile-btn');
+            const fileInput = document.getElementById('file-input');
+            
+            // Modal elements
+            const profileModal = document.getElementById('profile-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const uploadBtn = document.getElementById('upload-btn');
+            const imagePreview = document.getElementById('image-preview');
+            const notification = document.getElementById('notification');
             
             // Load dashboard data
             function loadDashboard() {
@@ -422,18 +759,18 @@
                 })
                 .then(response => {
                     if (!response.ok) {
+                        // If response is not ok, check for session/cookie issues
+                        if (response.status === 401) {
+                           throw new Error('Invalid session');
+                        }
                         throw new Error('Failed to load dashboard data');
                     }
                     return response.json();
                 })
                 .then(data => {
-                    // Update profile information
-                    nameValue.textContent = data.name || 'Unknown User';
-                    usernameValue.textContent = '@' + (data.username || 'unknown');
-                    
                     // Update profile details
-                    usernameDetail.textContent = data.username || 'unknown';
                     nameDetail.textContent = data.name || 'Unknown User';
+                    usernameDetail.textContent = data.username || 'unknown';
                     emailDetail.textContent = data.email || 'No email provided';
                     
                     // Update profile image
@@ -441,40 +778,166 @@
                         profileImage.innerHTML = `<img src="${data.imageurl}" alt="Profile Image">`;
                     }
                     
-                    // Show profile card
+                    // Display completed courses
+                    coursesList.innerHTML = ''; // Clear previous content
+                    if (data.coursename && Array.isArray(data.coursename) && data.coursename.length > 0) {
+                        data.coursename.forEach(course => {
+                            const courseItem = document.createElement('div');
+                            courseItem.className = 'course-item';
+                            courseItem.textContent = course; // REMOVED: Tick mark icon
+                            coursesList.appendChild(courseItem);
+                        });
+                    } else {
+                        coursesList.innerHTML = '<p class="no-courses-message">You have not completed any courses yet.</p>';
+                    }
+
+                    // Show main content
                     loadingSpinner.style.display = 'none';
-                    profileCard.style.display = 'block';
+                    mainContent.style.display = 'block';
                 })
                 .catch(error => {
                     console.error('Error loading dashboard:', error);
                     
                     // Redirect to login if session is invalid
-                    if (error.message.includes('session') || error.message.includes('cookie')) {
+                    if (error.message.includes('session')) {
                         window.location.href = '/login';
                     } else {
-                        // Show error message
+                        // Show error message in the loading spinner container
                         loadingSpinner.innerHTML = `
                             <div style="text-align: center; color: var(--danger);">
-                                <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                                <i class="fas fa-exclamation-circle" style="font-size: 3rem; margin-bottom: 15px;"></i>
                                 <p>Failed to load profile. Please try again later.</p>
                             </div>
                         `;
                     }
                 });
             }
-            
-            // Logout button click
-            logoutBtn.addEventListener('click', function() {
-                // Clear session cookie
-                document.cookie = 'session-id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+            // Show notification
+            function showNotification(message, type) {
+                notification.textContent = message;
+                notification.className = `notification ${type}`;
+                notification.classList.add('show');
                 
-                // Redirect to login page
-                window.location.href = '/login';
-            });
-            
-            // Edit profile button click (placeholder functionality)
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+
+            // Edit profile button click - Opens modal
             editProfileBtn.addEventListener('click', function() {
-                alert('Edit Profile functionality will be implemented soon!');
+                profileModal.style.display = 'flex';
+                // Reset file input and preview
+                fileInput.value = '';
+                const currentImage = profileImage.querySelector('img');
+                if (currentImage) {
+                    imagePreview.innerHTML = `<img src="${currentImage.src}" alt="Profile Image">`;
+                } else {
+                    imagePreview.innerHTML = '<i class="fas fa-user"></i>';
+                }
+            });
+
+            // Close modal buttons
+            closeModalBtn.addEventListener('click', function() {
+                profileModal.style.display = 'none';
+            });
+
+            cancelBtn.addEventListener('click', function() {
+                profileModal.style.display = 'none';
+            });
+
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === profileModal) {
+                    profileModal.style.display = 'none';
+                }
+            });
+
+            // Handle file selection
+            fileInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (!file) return;
+
+                // Backend validation: Max size 1048576 bytes (1MB)
+                if (file.size > 1048576) {
+                    showNotification('File size must be less than 1MB.', 'error');
+                    fileInput.value = ''; // Clear input
+                    return;
+                }
+
+                // Backend validation: Only PNG and JPEG allowed
+                if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
+                    showNotification('Only PNG and JPEG images are allowed.', 'error');
+                    fileInput.value = ''; // Clear input
+                    return;
+                }
+
+                // Preview selected image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.innerHTML = `<img src="${e.target.result}" alt="Profile Image Preview">`;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Upload button click
+            uploadBtn.addEventListener('click', function() {
+                const file = fileInput.files[0];
+                if (!file) {
+                    showNotification('Please select an image first.', 'error');
+                    return;
+                }
+
+                // Prepare form data
+                const formData = new FormData();
+                formData.append('image', file); // Key "image" matches r.FormFile("image")
+
+                // Update UI to show loading state
+                const originalBtnText = uploadBtn.innerHTML;
+                uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+                uploadBtn.disabled = true;
+
+                // Upload image
+                fetch('/editprofile', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.message || 'Upload failed');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Success! 
+                    showNotification(data.message || 'Profile updated successfully!', 'success');
+                    
+                    // Since the backend returns the new image URL in 'editprofile.go', 
+                    // we can update the DOM immediately for a smooth experience.
+                    if (data.imageurl) {
+                        profileImage.innerHTML = `<img src="${data.imageurl}" alt="Profile Image">`;
+                    } else {
+                        // Fallback: Reload dashboard to get the new URL
+                        loadDashboard();
+                    }
+                    
+                    // Close modal
+                    profileModal.style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error uploading image:', error);
+                    showNotification(error.message || 'Failed to update profile. Please try again.', 'error');
+                })
+                .finally(() => {
+                    // Reset button state
+                    uploadBtn.innerHTML = originalBtnText;
+                    uploadBtn.disabled = false;
+                    // Clear input so same file can be selected again if needed
+                    fileInput.value = '';
+                });
             });
             
             // Load dashboard on page load
