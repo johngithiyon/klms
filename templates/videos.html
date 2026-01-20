@@ -21,6 +21,7 @@
             --border-radius: 8px;
             --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
+            --accent: #ff7b00;
         }
 
         * {
@@ -249,6 +250,18 @@
             left: 100%;
         }
 
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
@@ -324,7 +337,65 @@
             background-color: var(--white);
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
+            padding: 0;
+            overflow: hidden;
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            background-color: var(--primary);
+            border-bottom: 1px solid var(--primary-dark);
+        }
+
+        .tab-button {
+            padding: 15px 25px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .tab-button:hover {
+            color: var(--white);
+        }
+
+        .tab-button.active {
+            color: var(--white);
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--accent);
+        }
+
+        /* Tab Content */
+        .tab-content {
             padding: 30px;
+            min-height: 300px;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .description-label {
@@ -338,6 +409,27 @@
             color: var(--gray);
             line-height: 1.8;
             font-size: 1.05rem;
+        }
+
+        /* Notes Section */
+        .notes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .no-notes {
+            text-align: center;
+            color: var(--gray);
+            padding: 40px 20px;
+        }
+
+        .no-notes i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+            color: var(--light-gray);
         }
 
         /* Video List */
@@ -533,6 +625,11 @@
                 width: 100%;
                 justify-content: space-between;
             }
+
+            .tab-button {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
         }
 
         @media (max-width: 576px) {
@@ -576,6 +673,16 @@
             .btn {
                 width: 100%;
                 justify-content: center;
+            }
+
+            .tab-navigation {
+                flex-wrap: wrap;
+            }
+
+            .tab-button {
+                flex: 1;
+                min-width: 80px;
+                text-align: center;
             }
         }
     </style>
@@ -629,8 +736,33 @@
                     </div>
                    
                     <div class="video-info" id="video-info" style="display: none;">
-                        <h2 class="description-label">Description</h2>
-                        <p class="video-description" id="current-video-description">Video description will appear here</p>
+                        <!-- Tab Navigation -->
+                        <div class="tab-navigation">
+                            <button class="tab-button active" data-tab="description">Description</button>
+                            <button class="tab-button" data-tab="notes">Notes</button>
+                        </div>
+                        
+                        <!-- Tab Content -->
+                        <div class="tab-content">
+                            <!-- Description Tab -->
+                            <div id="description-panel" class="tab-panel active">
+                                <h2 class="description-label">Description</h2>
+                                <p class="video-description" id="current-video-description">Video description will appear here</p>
+                            </div>
+                            
+                            <!-- Notes Tab -->
+                            <div id="notes-panel" class="tab-panel">
+                                <div class="notes-header">
+                                    <a id="download-notes-link" href="#" target="_blank" class="btn btn-primary" style="display: none;">
+                                        <i class="fas fa-download"></i> Download Notes
+                                    </a>
+                                </div>
+                                <div id="no-notes" class="no-notes" style="display: none;">
+                                    <i class="fas fa-file-excel"></i>
+                                    <p>No notes available for this video</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                
@@ -664,6 +796,14 @@
         const emptyState = document.getElementById('empty-state');
         const alertContainer = document.getElementById('alert-container');
         const certificateBtn = document.getElementById('certificate-btn');
+        
+        // Tab elements
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+        
+        // Notes elements
+        const downloadNotesLink = document.getElementById('download-notes-link');
+        const noNotes = document.getElementById('no-notes');
        
         const urlParams = new URLSearchParams(window.location.search);
         const courseId = urlParams.get('id');
@@ -673,11 +813,26 @@
         let courseStatus = 'not completed';
         let courseTitle = '';
         let totalVideos = 0; // Track total number of videos
+        let currentNotesUrl = ''; // Store current notes URL
        
         function showAlert(message, type) {
             alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
             setTimeout(() => { alertContainer.innerHTML = ''; }, 5000);
         }
+        
+        // Tab switching functionality
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.getAttribute('data-tab');
+                
+                // Update active states
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabPanels.forEach(panel => panel.classList.remove('active'));
+                
+                button.classList.add('active');
+                document.getElementById(`${targetTab}-panel`).classList.add('active');
+            });
+        });
        
         function loadVideos() {
             if (!courseId) {
@@ -761,6 +916,24 @@
 
             currentVideoDescription.textContent = video.Description;
             videoInfo.style.display = 'block';
+
+            // Handle notes
+            currentNotesUrl = video.Notesurl || '';
+            
+            if (currentNotesUrl) {
+                // Show download button
+                downloadNotesLink.href = currentNotesUrl;
+                downloadNotesLink.style.display = 'inline-flex';
+                noNotes.style.display = 'none';
+                
+                // Extract filename from URL for download attribute
+                const filename = currentNotesUrl.split('/').pop() || 'notes.pdf';
+                downloadNotesLink.setAttribute('download', filename);
+            } else {
+                // Hide download button and show no notes message
+                downloadNotesLink.style.display = 'none';
+                noNotes.style.display = 'block';
+            }
 
             // --- BLOCK SEEK FORWARD LOGIC ---
             // 1. Detect when user clicks or drags the timeline
