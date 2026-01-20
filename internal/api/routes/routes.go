@@ -41,5 +41,6 @@ func Routes() {
 	http.HandleFunc("/dashboard",handlers.Dashboard)
 	http.HandleFunc("/certificate", handlers.DownloadCertificateHandler)
 	http.HandleFunc("/notify",handlers.Notification)
-	http.HandleFunc("/editprofile",handlers.Editprofile)		
+	http.HandleFunc("/editprofile",handlers.Editprofile)	
+	http.HandleFunc("/deletecourse",handlers.Deletecourse)	
 }
