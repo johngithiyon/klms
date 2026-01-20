@@ -53,6 +53,19 @@ func Ratelimiting(next http.Handler) http.Handler {
 
 		username,userfetcherr := r.Cookie("session-id")
 
+		exists, checkerr := redis.Redis.Exists(r.Context(),"blockedid"+username.Value).Result()
+
+		if checkerr != nil {
+			 
+			  log.Println(checkerr)
+			  return 
+		} 
+
+		if exists == 1 {
+		      http.Error(w,"Come Again Later",400)
+			  return 
+		}
+
 		if userfetcherr != nil {
 			   
 			 if errors.Is(userfetcherr,http.ErrNoCookie) {
@@ -66,13 +79,7 @@ func Ratelimiting(next http.Handler) http.Handler {
 							  return 
 					   }
 
-					   log.Println("ID",user.Value)
-
 	                  count , fetcherr :=  redis.Redis.Incr(r.Context(),"rate"+user.Value).Result()
-
-					  log.Println(count)
-
-		           	log.Println(user.Value)
 
 
 					  if fetcherr != nil {
@@ -88,6 +95,7 @@ func Ratelimiting(next http.Handler) http.Handler {
 					}
 
 					  if count > 5 {
+						redis.Redis.Set(r.Context(),"blockedid"+user.Value,"",100*time.Minute)
 						http.Error(w,"Max Limit Request Reached",429)
 						return 
 				     }
@@ -98,10 +106,6 @@ func Ratelimiting(next http.Handler) http.Handler {
 		} else {
 			 
 			count , fetcherr :=  redis.Redis.Incr(r.Context(),"rate"+username.Value).Result()
-
-			log.Println(count)
-
-			log.Println(username.Value)
 
 			if fetcherr != nil {
 				log.Println("fetch err 2 ", fetcherr)
@@ -115,6 +119,7 @@ func Ratelimiting(next http.Handler) http.Handler {
 
 
 			if count > 5 {
+				 redis.Redis.Set(r.Context(),"blockedid"+username.Value,"",100*time.Minute)
 				 http.Error(w,"Max Request  Limit Reached",429)
 				 return 
 			}
