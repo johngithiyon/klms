@@ -22,8 +22,8 @@ func Startup() {
 
 	if rabbiterr != nil {
 		   log.Println("Problem in rabbitmq startup")
-		   return 
+	       return 
 	}
-	router.Routes()
-	go services.Worker()
+  router.Routes()
+  go services.Worker()
 }
