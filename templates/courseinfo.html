@@ -293,10 +293,13 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
+        .course-header {
+            margin-bottom: 15px;
+        }
+
         .course-title {
             font-size: 1.4rem;
             font-weight: 700;
-            margin-bottom: 15px;
             color: var(--dark);
             
             /* IMPROVEMENT: Clamp title to prevent uneven heights */
@@ -326,8 +329,10 @@
         .course-actions {
             display: flex;
             justify-content: flex-end;
+            align-items: center;
             /* IMPROVEMENT: Push button to the very bottom */
             margin-top: auto;
+            gap: 10px;
         }
 
         .btn {
@@ -369,6 +374,21 @@
         .btn-upload:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px;
+            transition: transform 0.2s, color 0.2s;
+        }
+
+        .btn-delete:hover {
+            color: #a71d2a !important;
+            transform: scale(1.1);
         }
 
         /* Loading spinner */
@@ -473,6 +493,10 @@
 
         .toast.success {
             border-left-color: var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
         }
 
         .toast i {
@@ -674,6 +698,12 @@
             const alertIcon = "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%23dc3545%22/></svg>";
             const faviconLink = document.getElementById('favicon');
 
+            // Store all courses for filtering
+            let allCourses = [];
+            
+            // Store list of courses the user can delete
+            let deletableCourses = [];
+
             // 🔓 Unlock notification sound after first user interaction (browser requirement)
             document.body.addEventListener('click', () => {
                 notificationSound.play().then(() => {
@@ -682,16 +712,13 @@
                 }).catch(() => {});
             }, { once: true });
 
-            // Store all courses for filtering
-            let allCourses = [];
-            
-
             // Show a Toast Notification (Popup)
             function showToast(title, message, type = 'success') {
                 const toast = document.createElement('div');
                 toast.className = `toast ${type}`;
                 
-                let iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+                let iconClass = type === 'success' ? 'fa-check-circle' : 
+                                type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
                 
                 toast.innerHTML = `
                     <i class="fas ${iconClass}"></i>
@@ -755,8 +782,6 @@
             document.addEventListener('click', () => {
                 hideNotificationDot();
             });
-
-
 
             // --- WebSocket Logic for Real-Time Notifications ---
             function initWebSocket() {
@@ -836,9 +861,17 @@
                     return response.json();
                 })
                 .then(userProfile => {
+                    // Store the list of titles the staff is allowed to delete
+                    deletableCourses = userProfile.deleteaccess || [];
+                    
                     // Show upload button only if user is a teacher
                     if (userProfile.role === 'staff') {
                         uploadButtonContainer.style.display = 'block';
+                    }
+                    
+                    // Re-render courses to show/hide delete icons based on permissions
+                    if (allCourses.length > 0) {
+                        displayCourses(allCourses);
                     }
                 })
                 .catch(error => {
@@ -922,17 +955,27 @@
                     const courseCard = document.createElement('div');
                     courseCard.className = 'course-card';
                     
+                    // CHECK PERMISSION: If course title is in our deletableCourses list
+                    const canDelete = deletableCourses.includes(course.title);
+                    
                     // Highlight search term in title and description
                     const highlightedTitle = highlightSearchTerm(course.title, searchTerm);
                     const highlightedDescription = highlightSearchTerm(course.description, searchTerm);
                     
                     courseCard.innerHTML = `
-                        <h3 class="course-title">${highlightedTitle}</h3>
+                        <div class="course-header">
+                            <h3 class="course-title">${highlightedTitle}</h3>
+                        </div>
                         <p class="course-description">${highlightedDescription}</p>
                         <div class="course-actions">
                             <button class="btn btn-primary" onclick="viewCourse(${course.courseid})">
                                 <i class="fas fa-play-circle"></i> View Course
                             </button>
+                            ${canDelete ? `
+                                <button class="btn-delete" onclick="deleteCourse(${course.courseid}, '${course.title}')" 
+                                        title="Delete Course">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>` : ''}
                         </div>
                     `;
                     coursesContainer.appendChild(courseCard);
@@ -1016,6 +1059,28 @@
             window.viewCourse = function(courseId) {
                 // Redirect with course ID as parameter
                 window.location.href = `videospage?id=${courseId}`;
+            };
+            
+            // Delete course function
+            window.deleteCourse = function(courseId, title) {
+                if (confirm(`Are you sure you want to delete the course: "${title}"?`)) {
+                    fetch(`/deletecourse?courseid=${courseId}`, {
+                        method: 'POST',
+                        credentials: 'include'
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            showToast("Deleted", "Course removed successfully", "success");
+                            loadCourses(); // Refresh the list
+                        } else {
+                            showToast("Error", "Failed to delete course", "error");
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Delete error:", err);
+                        showToast("Error", "Failed to delete course", "error");
+                    });
+                }
             };
             
             // Add event listeners for search
