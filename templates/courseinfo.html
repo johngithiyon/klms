@@ -703,6 +703,9 @@
             
             // Store list of courses the user can delete
             let deletableCourses = [];
+            
+            // Flag to track if a notification is waiting to be seen
+            let hasUnseenNotification = false;
 
             // 🔓 Unlock notification sound after first user interaction (browser requirement)
             document.body.addEventListener('click', () => {
@@ -807,10 +810,20 @@
                     // This string matches the one sent by your Go handler
                     if (data.includes("Video Uploaded Successfully")) {
                         playNotificationSound();
+                        
+                        // Always set the red dot, regardless of whether tab is active or hidden
+                        hasUnseenNotification = true;
                         showNotificationDot();
 
-                        showToast("Success", "A new video has been uploaded successfully!", "success");
-
+                        // Logic: 
+                        // 1. If user is currently viewing the page, show toast immediately.
+                        // 2. If user is away (hidden), only show the dot (set above).
+                        if (document.visibilityState === 'visible') {
+                            showToast("Success", "A new video has been uploaded successfully!", "success");
+                            // Mark as seen immediately because they just got the popup
+                            hasUnseenNotification = false;
+                        }
+                        
                         loadCourses();
                     } else {
                         // Handle other messages or errors from server
@@ -835,6 +848,15 @@
                     console.log(`WebSocket error: ${error.message}`);
                 };
             }
+
+            // Listen for tab visibility changes
+            // If user returns to the tab and there is an unseen notification, show the popup
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible' && hasUnseenNotification) {
+                    showToast("Success", "A new video has been uploaded successfully!", "success");
+                    hasUnseenNotification = false; // Ensure it doesn't show again
+                }
+            });
 
             // --- UI/Existing Functions ---
 
