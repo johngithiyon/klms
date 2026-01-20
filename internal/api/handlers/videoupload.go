@@ -130,7 +130,7 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 	err := tx.QueryRowContext(r.Context(),insertSQL, coursename, coursedescription, category, Username).Scan(&courseID)
 	if err != nil {
 		tx.Rollback()
-		log.Println(errors.ErrInserterr, err)
+		log.Println("I am danger",errors.ErrInserterr, err)
 		responses.JsonError(w, "internal server error")
 		return
 	}
@@ -138,8 +138,6 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 
 
 	var videos []string
-
-	videos = append(videos, coursename)
 
 	for i:=0;i<len(file);i++  {
 
@@ -170,6 +168,8 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 			return
 	  }
 
+	  videos = append(videos, titles[i])
+
 	  coursename = strings.ReplaceAll(coursename," ","")
 
 	  objname := coursename+"/"+file[i].Filename
@@ -186,7 +186,8 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 	jsondata,converterr := json.Marshal(pusher)
 
 	if converterr != nil {
-		log.Fatal("convert error from Marshal",converterr)
+		log.Println("convert error from Marshal",converterr)
+		return
 	}
 	
 	queueerr:= services.QueuePusher(jsondata)
@@ -217,9 +218,6 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 		         
 		    for k:=0;k<len(videos);k++ {
 
-				log.Println(pdffiles[j].Filename)
-				log.Println(videos[k])
-
 				    if  pdffiles[j].Filename == videos[k]+".pdf" {
 
 						   filereader,fileerr  := pdffiles[j].Open()
@@ -234,9 +232,7 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 
 						    videotitle := videos[k]
                               
-						    videoname := videos[k]+".pdf"
-
-							log.Println("Inside video name",videoname)
+						    videoname := "http://localhost:9000/klms-notes/"+coursename+"/"+videos[k]+".pdf"
 
 							updatesql := "UPDATE course_videos SET notes=$1 WHERE video_title=$2"
 
@@ -257,12 +253,11 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 								responses.JsonError(w,"Internal Server Error")
 								return 
 							}
-
-					}  else {
-						responses.JsonError(w,"File name must match to the title")
-						return 
-					}
+					} 
+                
 			}
+
+
 	   }
 
 	 w.Header().Set("Content-Type", "application/json")
