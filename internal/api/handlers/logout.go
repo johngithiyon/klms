@@ -66,10 +66,26 @@ func Logout(w http.ResponseWriter,r *http.Request) {
    check,rowsafferr := result.RowsAffected()
    
    if rowsafferr != nil {
-	    log.Println("rows affected")
 	    responses.JsonError(w,"Internal Server Error")
 		return
    }
+
+  cmd :=  redis.Redis.Del(r.Context(),sessionid.Value).Err()
+
+  if cmd != nil {
+	  responses.JsonError(w,"Internal Server Error")
+	  return 
+  }
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session-id",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+	})
 
    if check > 0 {
 	   responses.JsonSucess(w,"Logout Successfully")
