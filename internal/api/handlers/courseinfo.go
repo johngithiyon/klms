@@ -59,8 +59,6 @@ func Deletecourse(w http.ResponseWriter, r *http.Request) {
 	     
 	       courseid := r.URL.Query().Get("courseid")
 
-		   log.Println(courseid)
-
 		   id, err := strconv.Atoi(courseid)
 
 			if err != nil {
