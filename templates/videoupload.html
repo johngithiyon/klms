@@ -404,6 +404,12 @@
             color: var(--gray);
         }
 
+        .helper-text {
+            font-size: 0.75rem;
+            color: var(--secondary);
+            margin-top: 5px;
+        }
+
         .video-item-footer {
             display: flex;
             justify-content: flex-end;
@@ -595,7 +601,7 @@
             
             <div id="alert-container"></div>
             
-            <form id="upload-form" enctype="multipart/form-data">
+            <form id="upload-form">
                 <div class="form-group">
                     <label for="course-name" class="form-label">Course Name</label>
                     <input type="text" id="course-name" name="coursename" class="form-control" required>
@@ -747,6 +753,19 @@
                                 <div class="file-name" id="file-name-${videoCount}">No file chosen</div>
                             </div>
                         </div>
+                        <div class="video-item-file">
+                            <label>Notes (PDF)</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" id="pdf-file-${videoCount}" name="notes" class="file-input" accept="application/pdf">
+                                <label for="pdf-file-${videoCount}" class="file-input-button">
+                                    <i class="fas fa-file-pdf"></i> Choose PDF File
+                                </label>
+                                <div class="file-name" id="pdf-name-${videoCount}">No file chosen</div>
+                            </div>
+                            <div class="helper-text">
+                                * The system will automatically rename this PDF to match the Video Title.
+                            </div>
+                        </div>
                     </div>
                     <div class="video-item-footer">
                         <div class="video-item-remove" id="remove-video-${videoCount}">
@@ -763,11 +782,23 @@
                 
                 titleInput.addEventListener('input', function() {
                     validateNoNumbers(this, titleError);
+                    
+                    // Auto-update PDF filename display based on video title
+                    const pdfNameDisplay = document.getElementById(`pdf-name-${videoCount}`);
+                    if(pdfNameDisplay) {
+                        const titleValue = this.value.trim();
+                        if(titleValue) {
+                            // Replace spaces with underscores for display purposes (optional)
+                            pdfNameDisplay.textContent = titleValue.replace(/\s+/g, '_') + '.pdf';
+                        } else {
+                            pdfNameDisplay.textContent = 'No file chosen';
+                        }
+                    }
                 });
                 
                 titleInput.addEventListener('keydown', preventNumberInput);
                 
-                // Add event listener to file input
+                // Add event listener to file input (Video)
                 const fileInput = document.getElementById(`video-file-${videoCount}`);
                 const fileName = document.getElementById(`file-name-${videoCount}`);
                 
@@ -776,6 +807,27 @@
                         fileName.textContent = this.files[0].name;
                     } else {
                         fileName.textContent = 'No file chosen';
+                    }
+                });
+
+                // Add event listener to file input (PDF)
+                const pdfInput = document.getElementById(`pdf-file-${videoCount}`);
+                const pdfName = document.getElementById(`pdf-name-${videoCount}`);
+                
+                pdfInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const titleValue = titleInput.value.trim();
+                        // Show that the file is selected, but indicate it will be renamed
+                        const displaySuffix = titleValue ? ` (will be sent as ${titleValue}.pdf)` : '';
+                        pdfName.textContent = this.files[0].name + displaySuffix;
+                    } else {
+                        // If file is cleared, revert to title-based name if title exists
+                        const titleValue = titleInput.value.trim();
+                        if(titleValue) {
+                            pdfName.textContent = titleValue.replace(/\s+/g, '_') + '.pdf';
+                        } else {
+                            pdfName.textContent = 'No file chosen';
+                        }
                     }
                 });
                 
@@ -804,13 +856,33 @@
                     const titleInput = item.querySelector('input[name="videotitle"]');
                     const descriptionInput = item.querySelector('textarea[name="videodes"]');
                     const fileInput = item.querySelector('input[name="video"]');
-                    const fileName = item.querySelector('.file-name');
+                    
+                    // Update video file input ID and label
+                    const oldVideoInputId = fileInput.id;
+                    const newVideoInputId = `video-file-${newIndex}`;
+                    fileInput.id = newVideoInputId;
+                    const videoLabel = item.querySelector(`label[for="${oldVideoInputId}"]`);
+                    if(videoLabel) videoLabel.setAttribute('for', newVideoInputId);
+                    const videoNameDiv = fileInput.parentElement.querySelector('.file-name');
+                    if(videoNameDiv) videoNameDiv.id = `file-name-${newIndex}`;
+
+                    // Update PDF input ID and label
+                    const pdfInput = item.querySelector('input[name="notes"]');
+                    const oldPdfInputId = pdfInput.id;
+                    const newPdfInputId = `pdf-file-${newIndex}`;
+                    pdfInput.id = newPdfInputId;
+                    const pdfLabel = item.querySelector(`label[for="${oldPdfInputId}"]`);
+                    if(pdfLabel) pdfLabel.setAttribute('for', newPdfInputId);
+                    const pdfNameDiv = pdfInput.parentElement.querySelectorAll('.file-name')[1]; 
+                    // Ensure we target the correct file name div (it's the 2nd one in the parent)
+                    if(pdfNameDiv) {
+                         pdfNameDiv.id = `pdf-name-${newIndex}`;
+                    }
+
                     const removeBtn = item.querySelector('.video-item-remove');
                     
                     titleInput.id = `video-title-${newIndex}`;
                     descriptionInput.id = `video-description-${newIndex}`;
-                    fileInput.id = `video-file-${newIndex}`;
-                    fileName.id = `file-name-${newIndex}`;
                     removeBtn.id = `remove-video-${newIndex}`;
                 });
                 
@@ -864,7 +936,7 @@
                 }
                 
                 if (!allFieldsFilled) {
-                    showAlert('Please fill in all fields for each video.', 'danger');
+                    showAlert('Please fill in all required fields for each video.', 'danger');
                     return;
                 }
                 
@@ -872,10 +944,48 @@
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<span class="spinner"></span> Uploading...';
                 
-                // Create FormData for file upload
-                const formData = new FormData(uploadForm);
+                // Manually construct FormData to rename PDFs
+                const formData = new FormData();
+
+                // Append Course Details
+                formData.append('coursename', courseNameInput.value);
+                formData.append('coursedescription', document.getElementById('course-description').value);
+                formData.append('category', categoryInput.value);
+
+                // Loop through videos and append data
+                for (let i = 1; i <= videoCount; i++) {
+                    const titleInput = document.getElementById(`video-title-${i}`);
+                    const descInput = document.getElementById(`video-description-${i}`);
+                    const videoFileInput = document.getElementById(`video-file-${i}`);
+                    const pdfFileInput = document.getElementById(`pdf-file-${i}`);
+
+                    const videoTitle = titleInput.value.trim();
+
+                    // Append Title and Description
+                    formData.append('videotitle', videoTitle);
+                    formData.append('videodes', descInput.value);
+
+                    // Append Video File
+                    if (videoFileInput && videoFileInput.files.length > 0) {
+                        formData.append('video', videoFileInput.files[0]);
+                    }
+
+                    // Handle PDF Renaming logic
+                    if (pdfFileInput && pdfFileInput.files.length > 0) {
+                        const originalPdf = pdfFileInput.files[0];
+                        
+                        // Create a new File object with the name set to the Video Title + .pdf
+                        // This ensures the backend receives the file with the correct name matching the title
+                        const renamedPdf = new File([originalPdf], `${videoTitle}.pdf`, {
+                            type: originalPdf.type,
+                            lastModified: originalPdf.lastModified
+                        });
+                        
+                        formData.append('notes', renamedPdf);
+                    }
+                }
                 
-                // Send the form data to the server - using the correct endpoint
+                // Send the form data to the server
                 fetch('/uploadvideo', {
                     method: 'POST',
                     body: formData,
