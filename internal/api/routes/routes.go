@@ -7,11 +7,11 @@ import (
 )
 
 func Routes() {
-	http.Handle("/",middleware.Globalimit(http.HandlerFunc(handlers.Indexpage)))
+	http.HandleFunc("/",handlers.Indexpage)
 	http.HandleFunc("/aboutpage",handlers.Aboutpage)
-	http.HandleFunc("/signuppage",handlers.Signuppage)
-	http.HandleFunc("/otpverifypage",handlers.Otpverifypage)
-	http.HandleFunc("/loginpage",handlers.Loginpage)
+	http.Handle("/signuppage",middleware.Ratelimiting(http.HandlerFunc(handlers.Signuppage)))
+	http.Handle("/otpverifypage",middleware.Ratelimiting(http.HandlerFunc(handlers.Otpverifypage)))
+	http.Handle("/loginpage",middleware.Ratelimiting(http.HandlerFunc(handlers.Loginpage)))
 	http.HandleFunc("/userprofilepage",handlers.Userprofilepage)
 	http.Handle("/coursespage",middleware.SessionMiddleware(http.HandlerFunc(handlers.Coursespage)))
 	http.Handle("/videospage",middleware.SessionMiddleware(http.HandlerFunc(handlers.Videospage)))
