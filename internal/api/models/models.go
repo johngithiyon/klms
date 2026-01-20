@@ -12,6 +12,7 @@ type (
 		Title string
 		Description string
 		Videourl string
+		Notesurl string
 		Status string
 
 	}
