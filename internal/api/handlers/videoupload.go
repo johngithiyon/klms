@@ -25,7 +25,9 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 		  r.ParseForm()
 		  
 
-	      file:= r.MultipartForm.File["video"]
+	      file := r.MultipartForm.File["video"]
+		  pdffiles := r.MultipartForm.File["notes"]
+
 		  titles := r.Form["videotitle"]
 		  video_description := r.Form["videodes"]
 
@@ -133,6 +135,12 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 		return
 	}
 
+
+
+	var videos []string
+
+	videos = append(videos, coursename)
+
 	for i:=0;i<len(file);i++  {
 
 		filereader,fileerr := file[i].Open()
@@ -204,6 +212,58 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 			    responses.JsonError(w,"Internal Server Error")
 				return
 		 }	 
+
+	   for j:=0;j<len(pdffiles);j++ {
+		         
+		    for k:=0;k<len(videos);k++ {
+
+				log.Println(pdffiles[j].Filename)
+				log.Println(videos[k])
+
+				    if  pdffiles[j].Filename == videos[k]+".pdf" {
+
+						   filereader,fileerr  := pdffiles[j].Open()
+
+						   if fileerr != nil {
+							log.Println(errors.ErrFileNotFound,fileerr)
+							responses.JsonError(w,errors.ErrFileNotFound)
+							return
+						}
+				
+						defer filereader.Close()
+
+						    videotitle := videos[k]
+                              
+						    videoname := videos[k]+".pdf"
+
+							log.Println("Inside video name",videoname)
+
+							updatesql := "UPDATE course_videos SET notes=$1 WHERE video_title=$2"
+
+							_,inserterr := postgres.Db.Exec(updatesql,videoname,videotitle)
+
+							if inserterr != nil {
+								  log.Println("Insert Err",inserterr)
+								  responses.JsonError(w,"Internal Server Error")
+								  return 
+							}
+
+							_,puterr := minio.Minio.PutObject(r.Context(),"klms-notes",coursename+"/"+pdffiles[j].Filename,filereader,pdffiles[j].Size,sdk.PutObjectOptions{
+								ContentType: pdffiles[j].Header.Get("Content-Type"),
+						 })	
+
+						    if puterr != nil {
+								log.Println("Put Err",puterr)
+								responses.JsonError(w,"Internal Server Error")
+								return 
+							}
+
+					}  else {
+						responses.JsonError(w,"File name must match to the title")
+						return 
+					}
+			}
+	   }
 
 	 w.Header().Set("Content-Type", "application/json")
 	 responses.JsonSucess(w,"video is received processing...") 
