@@ -24,7 +24,7 @@ func Notification(w http.ResponseWriter,  r *http.Request) {
 	var upgrader = websocket.Upgrader{
 			
 		CheckOrigin: func(r *http.Request) bool {
-			return r.Header.Get("Origin") == "http://localhost"
+			return r.Header.Get("Origin") == "http://localhost" 
 		},
 	    
 	}
@@ -68,9 +68,8 @@ func Notification(w http.ResponseWriter,  r *http.Request) {
    }
 
    if exists == 1 {
-	    websocketconn.WriteMessage(websocket.TextMessage,[]byte("Video Uploaded Successfully ..."))
-
-		delres,delerr := postgres.Db.Exec("delete from pending_noitifications where username=$1",username)
+	   
+		delres,delerr := postgres.Db.Exec("delete from pending_notifications where username=$1",username)
 
 		if delerr != nil {
 			 
@@ -78,14 +77,25 @@ func Notification(w http.ResponseWriter,  r *http.Request) {
 			  return 
 		}
 
-		num,_ :=  delres.RowsAffected() 
+
+		num,delerr :=  delres.RowsAffected()
+		
+		if delerr != nil {
+			 log.Println(delerr)
+			 return 
+		}
+
+		log.Println(num)
 
 		if num < 0 {
                    
 			websocketconn.WriteMessage(websocket.TextMessage,[]byte("Internal Server Error"))
 			return 
  			  
-		}
+		} 
+
+		websocketconn.WriteMessage(websocket.TextMessage,[]byte("Video Uploaded Successfully ..."))
+		return 
    }
  
  
@@ -142,23 +152,25 @@ func handleconnections(username string,websocketconn *websocket.Conn,found bool)
 	   if found {
 		   writerr  :=  websocketconn.WriteMessage(websocket.TextMessage,[]byte("Video Uploaded Successfully..."))
 
-		   if writerr != nil {
-			   
-			     res,inserterr := postgres.Db.Exec("insert into pending_notifications (username) values($1)",username)
+		   res,inserterr := postgres.Db.Exec("insert into pending_notifications (username) values($1)",username)
 		   
-			     if inserterr != nil {
-					websocketconn.WriteMessage(websocket.TextMessage,[]byte("Internal Server Error"))
-					return 
-				 }
+		   if inserterr != nil {
+			  websocketconn.WriteMessage(websocket.TextMessage,[]byte("Internal Server Error"))
+			  return 
+		   }
 
-				 num,_ :=  res.RowsAffected()
+		   num,_ :=  res.RowsAffected()
 
-				 if num < 0 {
-					  
-					 websocketconn.WriteMessage(websocket.TextMessage,[]byte("Internal Server Error"))
-					 return 
-				 }
-				}
+		   if num < 0 {
+				
+			   websocketconn.WriteMessage(websocket.TextMessage,[]byte("Internal Server Error"))
+			   return 
+		   }
+
+		   if writerr != nil {
+			          websocketconn.WriteMessage(websocket.TextMessage,[]byte("Internal Server Error"))
+				      return 
+			}
 
 		    redisdelerr := redis.Redis.Del(context.Background(),username).Err()
 			
