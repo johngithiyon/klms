@@ -364,6 +364,13 @@
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
+            color: white !important;
+        }
+
+        /* Fix for spinner visibility on Skip button */
+        .btn-skip .spinner {
+            border-top-color: var(--primary-dark);
+            border-color: rgba(93, 173, 226, 0.3);
         }
 
         .upload-form {
@@ -551,13 +558,13 @@
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="profile-actions">
-                    <button class="btn btn-primary" id="upload-btn">
+                    <button class="btn btn-primary" id="upload-btn" type="button">
                         <i class="fas fa-upload"></i> Upload Image
                     </button>
-                    <button class="btn btn-danger" id="delete-btn" style="display: none;">
+                    <button class="btn btn-danger" id="delete-btn" style="display: none;" type="button">
                         <i class="fas fa-trash"></i> Delete
                     </button>
-                    <button class="btn btn-skip" id="skip-btn">
+                    <button class="btn btn-skip" id="skip-btn" type="button">
                         <i class="fas fa-arrow-right"></i> Skip
                     </button>
                 </div>
@@ -577,7 +584,7 @@
                     <div class="form-hint">Allowed formats: PNG, JPEG. Maximum size: 1MB</div>
                 </div>
                 
-                <button type="submit" class="btn btn-primary" id="submit-btn">
+                <button type="button" class="btn btn-primary" id="submit-btn">
                     <i class="fas fa-save"></i> Save Image
                 </button>
             </form>
@@ -596,7 +603,10 @@
             const fileName = document.getElementById('file-name');
             const submitBtn = document.getElementById('submit-btn');
             const alertContainer = document.getElementById('alert-container');
-            const userNameInput = document.getElementById('user-name');
+            const userName = document.getElementById('user-name');
+            
+            // A simple flag to check if a request is already flying
+            let isProcessing = false;
             
             // Show alert message
             function showAlert(message, type) {
@@ -619,7 +629,8 @@
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Failed to load profile data');
+                        // If profile doesn't exist or error, just show default icon
+                        throw new Error('Failed to load');
                     }
                     return response.json();
                 })
@@ -634,11 +645,12 @@
                     
                     // Load user name if available
                     if (data.name) {
-                        userNameInput.value = data.name;
+                        userName.value = data.name;
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading profile data:', error);
+                    // Fallback to default state
+                    console.log('Profile load skipped or failed:', error);
                     profileImage.innerHTML = '<i class="fas fa-user"></i>';
                     deleteBtn.style.display = 'none';
                 });
@@ -652,23 +664,6 @@
                 uploadForm.style.display = uploadForm.style.display === 'none' ? 'block' : 'none';
             });
             
-            // Skip button click
-            skipBtn.addEventListener('click', function() {
-                // Validate name field
-                if (!userNameInput.value.trim()) {
-                    showAlert('Please enter your name before continuing.', 'danger');
-                    userNameInput.focus();
-                    return;
-                }
-                
-                // Add a subtle animation before redirecting
-                skipBtn.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    // Redirect to main page (video page)
-                    window.location.href = '/coursespage'; // Change this to your actual main page URL
-                }, 150);
-            });
-            
             // File input change
             fileInput.addEventListener('change', function() {
                 if (this.files && this.files[0]) {
@@ -678,89 +673,16 @@
                 }
             });
             
-            // Form submission
-            uploadForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Validate name field
-                if (!userNameInput.value.trim()) {
-                    showAlert('Please enter your name.', 'danger');
-                    userNameInput.focus();
-                    return;
-                }
-                
-                if (!fileInput.files || !fileInput.files[0]) {
-                    showAlert('Please select an image to upload.', 'danger');
-                    return;
-                }
-                
-                const file = fileInput.files[0];
-                
-                // Validate file size (1MB max)
-                if (file.size > 1048576) {
-                    showAlert('File size must be less than 1MB.', 'danger');
-                    return;
-                }
-                
-                // Validate file type
-                if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
-                    showAlert('Only PNG and JPEG images are allowed.', 'danger');
-                    return;
-                }
-                
-                // Disable button during upload
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner"></span> Uploading...';
-                
-                // Create form data
-                const formData = new FormData();
-                formData.append('image', file);
-                formData.append('name', userNameInput.value.trim());
-                
-                // Send to backend
-                fetch('/userprofile', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'include'
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(data => {
-                            throw new Error(data.error || 'Upload failed');
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Success
-                    showAlert('Profile image updated successfully!', 'success');
-                    
-                    // Update profile image
-                    profileImage.innerHTML = `<img src="${data.url}" alt="Profile Image">`;
-                    deleteBtn.style.display = 'inline-block';
-                    
-                    // Reset form
-                    uploadForm.style.display = 'none';
-                    fileInput.value = '';
-                    fileName.textContent = 'No file selected';
-                    
-                    // Change skip button to continue after successful upload
-                    skipBtn.innerHTML = '<i class="fas fa-check"></i> Continue';
-                })
-                .catch(error => {
-                    showAlert(error.message, 'danger');
-                })
-                .finally(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Image';
-                });
-            });
-            
             // Delete button click
             deleteBtn.addEventListener('click', function() {
+                if (isProcessing) return;
+                
                 if (!confirm('Are you sure you want to delete your profile image?')) {
                     return;
                 }
+                
+                // Set flag to prevent multiple requests
+                isProcessing = true;
                 
                 // Disable button during deletion
                 deleteBtn.disabled = true;
@@ -796,7 +718,133 @@
                 .finally(() => {
                     deleteBtn.disabled = false;
                     deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+                    isProcessing = false;
                 });
+            });
+            
+            function handleAction(actionType) {
+                if (isProcessing) return; // Exit if a request is already in progress
+                isProcessing = true;
+
+                // 1. Disable all buttons immediately
+                submitBtn.disabled = true;
+                skipBtn.disabled = true;
+                uploadBtn.disabled = true;
+
+                // Validate name field
+                if (!userName.value.trim()) {
+                    showAlert('Please enter your name before continuing.', 'danger');
+                    userName.focus();
+                    isProcessing = false;
+                    submitBtn.disabled = false;
+                    skipBtn.disabled = false;
+                    uploadBtn.disabled = false;
+                    return;
+                }
+
+                if (actionType === 'save') {
+                    // Validate file
+                    if (!fileInput.files || !fileInput.files[0]) {
+                        showAlert('Please select an image to upload.', 'danger');
+                        isProcessing = false;
+                        submitBtn.disabled = false;
+                        skipBtn.disabled = false;
+                        uploadBtn.disabled = false;
+                        return;
+                    }
+                    
+                    const file = fileInput.files[0];
+                    
+                    // Validate file size (1MB max)
+                    if (file.size > 1048576) {
+                        showAlert('File size must be less than 1MB.', 'danger');
+                        isProcessing = false;
+                        submitBtn.disabled = false;
+                        skipBtn.disabled = false;
+                        uploadBtn.disabled = false;
+                        return;
+                    }
+                    
+                    // Validate file type
+                    if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
+                        showAlert('Only PNG and JPEG images are allowed.', 'danger');
+                        isProcessing = false;
+                        submitBtn.disabled = false;
+                        skipBtn.disabled = false;
+                        uploadBtn.disabled = false;
+                        return;
+                    }
+                    
+                    // Update button text for save action
+                    submitBtn.innerHTML = '<span class="spinner"></span> Uploading...';
+                    
+                    // Collect Name + Image
+                    const formData = new FormData();
+                    formData.append('name', userName.value.trim());
+                    formData.append('image', fileInput.files[0]);
+                    sendRequest(formData, actionType);
+                } else {
+                    // Update button text for skip action
+                    skipBtn.innerHTML = '<span class="spinner"></span> Saving...';
+                    
+                    // Collect Name Only (Skip)
+                    const formData = new FormData();
+                    formData.append('name', userName.value.trim());
+                    sendRequest(formData, actionType);
+                }
+            }
+
+            async function sendRequest(data, actionType) {
+                try {
+                    const response = await fetch('/userprofile', { 
+                        method: 'POST', 
+                        body: data,
+                        credentials: 'include'
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Request failed');
+                    }
+                    
+                    const responseData = await response.json();
+                    
+                    // Show success message for both actions
+                    if (actionType === 'save') {
+                        showAlert('Profile image saved successfully!', 'success');
+                    } else {
+                        showAlert('Name saved successfully!', 'success');
+                    }
+                    
+                    // Short delay to show success message, then redirect for both actions
+                    setTimeout(() => {
+                        window.location.href = '/coursespage';
+                    }, 1000);
+                } catch (err) {
+                    showAlert(err.message, 'danger');
+                } finally {
+                    // 2. Re-enable buttons only after the request finishes
+                    isProcessing = false;
+                    submitBtn.disabled = false;
+                    skipBtn.disabled = false;
+                    uploadBtn.disabled = false;
+                    
+                    // Reset button text
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Image';
+                    skipBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Skip';
+                }
+            }
+            
+            // Save Image button click - NOT form submission
+            submitBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                handleAction('save');
+            });
+            
+            // Skip button click
+            skipBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                handleAction('skip');
             });
         });
     </script>

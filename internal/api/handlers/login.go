@@ -45,10 +45,7 @@ func Loginhandler(w http.ResponseWriter, r *http.Request) {
 
 				 Name: "session-id",
 				 Value: id,
-				 HttpOnly: true,
-				 Secure: false,
 				 Expires: time.Now().Add(7 * 24 * time.Hour),
-				 SameSite: http.SameSiteLaxMode,
 		 })
 
 		     redisconn := redis.Redis

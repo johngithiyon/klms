@@ -24,7 +24,7 @@ func Notification(w http.ResponseWriter,  r *http.Request) {
 	var upgrader = websocket.Upgrader{
 			
 		CheckOrigin: func(r *http.Request) bool {
-			return r.Header.Get("Origin") == "http://localhost" 
+			return r.Header.Get("Origin") == "https://klms.kwscloud.in" 
 		},
 	    
 	}

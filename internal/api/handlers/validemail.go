@@ -51,8 +51,14 @@ func ValidEmail(w http.ResponseWriter,r *http.Request) {
 		 return
 	}
 
+	var username string 
 
-	status := redis.Redis.Set(r.Context(),otp,email,5*time.Minute)
+	userfetchquery := "select username from users where  email = $1"
+
+	postgres.Db.QueryRowContext(r.Context(),userfetchquery,email).Scan(&username)
+
+
+	status := redis.Redis.Set(r.Context(),username+"otp",otp,5*time.Minute)
   
 
 	statuserr := status.Err()

@@ -27,7 +27,7 @@ func SignupHandler(w http.ResponseWriter,r *http.Request)  {
 
 	  usernamepattern := "^[0-9]{2}[A-Za-z]{3}[0-9]{3}$"
 	  emailPattern := `^[0-9]{2}[a-z]{3}[0-9]{3}@kamarajengg\.edu\.in$`
-	  passwordPattern := `^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$`
+	  passok := services.IsValidPassword(password)
 
 	  //valid check for the staff signup
 
@@ -39,7 +39,6 @@ func SignupHandler(w http.ResponseWriter,r *http.Request)  {
 		  
       emailok,_ := reg.MatchString(emailPattern,email)
 
-      passok,_ := reg.MatchString(passwordPattern,password)
 
 	  staffok,_ := reg.MatchString(staffnamepattern,username)
 
@@ -105,13 +104,14 @@ func SignupHandler(w http.ResponseWriter,r *http.Request)  {
 		Name: "temp-id",
 		 Value: id,
 		 Expires: time.Now().Add(30 * time.Minute),
+
  })
 
 	     signupdetails := map[string]interface{} {
 			"username":username,
 			"email":email,
 			"password":password_hash,
-			"otp":otp,
+			username+"otp":otp,
 			"role":role,
 		}      
 

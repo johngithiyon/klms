@@ -56,6 +56,7 @@ func Worker() {
 		func() {
 
 		defer func() {
+
 			panicerr := recover()
 	
 			if panicerr != nil {
@@ -70,6 +71,10 @@ func Worker() {
             foldername := strings.ReplaceAll(data["coursename"].(string), " ", "")
 			videoname := data["videoname"].(string)
 
+			log.Println("Input ",input)
+			log.Println("Foldernme",foldername)
+			log.Println("Videoname",videoname)
+
 
 			object, objfetcherr :=minio.Minio.GetObject(context.Background(),"klms-coursevideos",input,sdk.GetObjectOptions{})
 
@@ -79,7 +84,7 @@ func Worker() {
 				return
 			}
 
-             os.MkdirAll("/home/john/Documents/tmp/"+foldername,0777)
+             os.MkdirAll("/home/john_githiyon/Documents/tmp/"+foldername,0777)
 
 
 				cmd := exec.Command("ffmpeg",
@@ -108,24 +113,37 @@ func Worker() {
 					// Two video streams (v:0 = 1080p, v:1 = 360p)
 					"-var_stream_map", "v:0,a:0 v:1,a:1",
 
-					"-hls_time", "10",
+					"-hls_time", "30",
 					"-hls_playlist_type", "vod",
 					"-master_pl_name", "master.m3u8",
 
 					"-f", "hls",
-					"/home/john/Documents/tmp/"+foldername+"/"+"output_%v.m3u8",
+					"/home/john_githiyon/Documents/tmp/"+foldername+"/"+"output_%v.m3u8",
 				)
 
-				localpath := "/home/john/Documents/tmp/"+foldername
+				localpath := "/home/john_githiyon/Documents/tmp/"+foldername
+
+				log.Println("LocalPath",localpath)
 
 
-				stdin,stderr := cmd.StdinPipe()
+				stdin,stdinpiperr := cmd.StdinPipe()
 
-				if stderr != nil {
-					log.Println("Cannot get the data from the stdpipe",stderr)
+				if stdinpiperr != nil {
+					log.Println("Cannot get the data from the stdpipe",stdinpiperr)
 					msg.Nack(false,true)
 					return 
 				}
+
+				stderr, err := cmd.StderrPipe()
+				if err != nil {
+					log.Println("stderr pipe error:", stderr)
+					msg.Nack(false, true)
+					return
+				}
+
+						go func() {
+			io.Copy(os.Stderr, stderr)
+		}()
 
 				cmd.Start()
 
@@ -134,7 +152,11 @@ func Worker() {
 				stdin.Close()
 
                 
-			    cmd.Wait()
+			   waiterr := cmd.Wait()
+
+			   if waiterr !=nil {
+				    log.Println("Wait error",waiterr)
+			   }
 
 				entries,readerr := os.ReadDir(localpath)
 
@@ -150,7 +172,11 @@ func Worker() {
 
 					 name := entry.Name()
 
+					 log.Println("Name",name)
+
 					 fullpath := localpath+"/"+name
+
+					 log.Println("Fullpath",fullpath)
 
 					 file,openerr := os.Open(fullpath)
 
@@ -171,6 +197,8 @@ func Worker() {
 					 }
 
 					 objname = foldername+"/"+ videoname +"/"+name
+
+					 log.Println("Objname",objname)
 
 					 var contenttype string
 

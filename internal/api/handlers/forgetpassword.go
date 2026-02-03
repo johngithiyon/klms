@@ -23,11 +23,6 @@ func Forgetpassword(w http.ResponseWriter, r *http.Request) {
 
 	     password := r.FormValue("password")
 
-		 if len(password) != 6 {
-			responses.JsonError(w,"Enter Six Digits Password")
-			return
-		 }
-
 		 confirmpassword := r.FormValue("confirmpassword")
 
 		 if password != confirmpassword {

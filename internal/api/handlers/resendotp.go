@@ -4,12 +4,15 @@ import (
 	"errors"
 	"klms/internal/api/handlers/responses"
 	"klms/internal/api/services"
+	"klms/internal/api/storage/postgres"
 	"klms/internal/api/storage/redis"
 	"log"
 	"net/http"
+	"time"
 )
 
 func Resendotp(w http.ResponseWriter, r *http.Request) {
+
 
    validid,cokkierr := r.Cookie("valid-id")
 
@@ -43,6 +46,16 @@ func Resendotp(w http.ResponseWriter, r *http.Request) {
 				   return
 			 }
 
+			 username,userfetcherr := redis.Redis.HGet(r.Context(),tempid.Value,"username").Result()
+
+			if userfetcherr != nil {
+				responses.JsonError(w,"Internal Server Error")
+				log.Println("Username fetch error in hash",userfetcherr)
+				return
+			}
+
+			redis.Redis.Set(r.Context(),username+"otp",otp,5*time.Minute)
+
 			 responses.JsonSucess(w,"Resend successfully")
 			 return 
 
@@ -69,6 +82,21 @@ func Resendotp(w http.ResponseWriter, r *http.Request) {
 		  return
 	}
 
+   var username string 
+
+	userfetchquery := "select username from users where  email = $1"
+
+	postgres.Db.QueryRowContext(r.Context(),userfetchquery,email).Scan(&username)
+
+	status := redis.Redis.Set(r.Context(),username+"otp",otp,5*time.Minute)
+
+    	statuserr := status.Err()
+
+	if statuserr != nil {
+		responses.JsonError(w,"Internal Server Error")
+		return
+	}
+	
 	responses.JsonSucess(w,"Resend successfully") 
   
 }

@@ -5,11 +5,11 @@ import (
 	"klms/internal/api/errors"
 	"klms/internal/api/handlers/responses"
 	"klms/internal/api/storage/minio"
+	"klms/internal/api/storage/postgres"
 	"klms/internal/api/storage/redis"
 	"log"
 	"net/http"
 	"strings"
-	"time"
 
 	mini "github.com/minio/minio-go/v7"
 )
@@ -93,12 +93,16 @@ func Editprofile(w http.ResponseWriter,  r *http.Request) {
    }
 
    if found {
+
+	    log.Println("Founded",obj.Key)
 	   
 	     minio.Minio.RemoveObject(r.Context(),"klms-profiles",obj.Key,mini.RemoveObjectOptions{})
 	   
    } 
 
    objname := username + content
+
+   log.Println("This is edit profile",objname)
 
    
   _,puterr :=   minio.Minio.PutObject(r.Context(),"klms-profiles",objname,Imagefile,fileheader.Size,mini.PutObjectOptions{})
@@ -108,18 +112,19 @@ func Editprofile(w http.ResponseWriter,  r *http.Request) {
 	   return
   }
 
-  url , urlerr := minio.Minio.PresignedGetObject(r.Context(),"klms-profiles",objname,5*time.Minute,nil)
+  updateQuery := "UPDATE users SET profile_image=$1 WHERE username=$2;"
+	_, updateerr := postgres.Db.Exec(updateQuery, objname, username)
+	if updateerr != nil {
+		log.Println("Update users error:", updateerr)
+		responses.JsonError(w, "Internal Server Error")
+		return
+	}
 
-
-  if urlerr != nil {
-	 log.Println("Url err",urlerr)
-	 responses.JsonError(w,"Internal Server Error")
-	 return
-  }
+  url := "/minio/klms-profiles/"+objname
 
   json.NewEncoder(w).Encode(
 	map[string]string {
-		  "imageurl":url.String(),
+		  "imageurl":url,
 		  "message":"Edited sucessfully",
 
 	},

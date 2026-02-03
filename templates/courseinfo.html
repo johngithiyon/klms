@@ -6,9 +6,6 @@
     <title>KLMS - Courses</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Favicon (Dynamic icon in tab) -->
-    <link id="favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
-
     <style>
         :root {
             --primary: #5dade2;
@@ -693,8 +690,8 @@
             const baseTitle = document.title;
 
             // --- FAVICON SETUP ---
-            // These are SVG data URIs for the icons.
-            const normalIcon = "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>";
+            // CHANGED: Removed the Cap Emoji (🎓) and replaced with a blue circle.
+            const normalIcon = "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%233498db%22/></svg>";
             const alertIcon = "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%23dc3545%22/></svg>";
             const faviconLink = document.getElementById('favicon');
 
@@ -944,7 +941,8 @@
                 .catch(error => {
                     console.error('Error loading courses:', error);
                     loadingSpinner.style.display = 'none';
-                    showAlert('Failed to load courses. Please try again later.', 'danger');
+                    // REMOVED ALERT: "Failed to load courses. Please try again later."
+                    // showAlert('Failed to load courses. Please try again later.', 'danger');
                 });
             }
             

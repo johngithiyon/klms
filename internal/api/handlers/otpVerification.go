@@ -7,6 +7,8 @@ import (
 	"klms/internal/api/storage/redis"
 	"log"
 	"net/http"
+
+	red "github.com/redis/go-redis/v9"
 )
 
 
@@ -50,9 +52,18 @@ func VerifyOtp(w http.ResponseWriter,r *http.Request) {
 			return 
 		 }
 
-		 originalotp,otpfetcherr  := redisconn.HGet(r.Context(),id.Value,"otp").Result()
+		 originalotp,otpfetcherr  := redisconn.HGet(r.Context(),id.Value,username+"otp").Result()
+
 
 		 if otpfetcherr != nil {
+			resp.JsonError(w,errors.Errredisfetcherr)
+			log.Println("Otp fetch error in hash",otpfetcherr)
+			return 
+		 }
+
+		 resendotp,resendotpfetcherr := redisconn.Get(r.Context(),username+"otp").Result()
+
+		  if resendotpfetcherr != nil && resendotpfetcherr != red.Nil {
 			resp.JsonError(w,errors.Errredisfetcherr)
 			log.Println("Otp fetch error in hash",otpfetcherr)
 			return 
@@ -66,7 +77,7 @@ func VerifyOtp(w http.ResponseWriter,r *http.Request) {
 			  return 
 		 }
 
-		if otp == originalotp {
+		if otp == originalotp || otp == resendotp {
  
 
 			  insertsql := "INSERT INTO users (username, email, password,role)VALUES ($1, $2, $3,$4);"

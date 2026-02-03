@@ -17,6 +17,8 @@ import (
 
 func VideoUploader(w http.ResponseWriter,r *http.Request) {
 
+	log.Println("Upload hit")
+
 	      coursename := r.FormValue("coursename")
 		  coursedescription := r.FormValue("coursedescription")
 		  category := r.FormValue("category")
@@ -155,7 +157,7 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 
 		coursename := strings.ReplaceAll(coursename," ","")
 
-		video_url := "http://localhost:9000/klms-videostreaming/"+coursename+"/"+videoname+"/master.m3u8"
+		video_url := "/minio/klms-videostreaming/"+coursename+"/"+videoname+"/master.m3u8"
 	  
 	  videodetailinsertsql := `INSERT INTO course_videos (course_id, video_title, video_filename,video_description,video_url)
 							   VALUES ($1, $2,$3,$4,$5)  RETURNING video_id;`
@@ -232,7 +234,7 @@ func VideoUploader(w http.ResponseWriter,r *http.Request) {
 
 						    videotitle := videos[k]
                               
-						    videoname := "http://localhost:9000/klms-notes/"+coursename+"/"+videos[k]+".pdf"
+						    videoname := "/minio/klms-notes/"+coursename+"/"+videos[k]+".pdf"
 
 							updatesql := "UPDATE course_videos SET notes=$1 WHERE video_title=$2"
 

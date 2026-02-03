@@ -19,6 +19,7 @@ func Logout(w http.ResponseWriter,r *http.Request) {
 	sessionid,cokkierr := r.Cookie("session-id")
 
 	if cokkierr != nil {
+		log.Println("From logout cookierr",cokkierr)
         responses.JsonError(w,errors.Errcookie)
 		return 
 	}
@@ -26,6 +27,7 @@ func Logout(w http.ResponseWriter,r *http.Request) {
 	username,rediserr  := redis.Redis.Get(r.Context(),sessionid.Value).Result()
 
 	if rediserr != nil {
+		 log.Println("From logout rediseer",rediserr)
 		 responses.JsonError(w,"Internal Server Error")
 		 return
 	}
@@ -39,6 +41,7 @@ func Logout(w http.ResponseWriter,r *http.Request) {
 	log.Println(profileimage)
 
 	if profileimage != "" && scanerr != nil {
+		log.Println("From logout scanerr",scanerr)
 		responses.JsonError(w,"Internal Server Error")
 			return
 	} 
@@ -48,31 +51,17 @@ func Logout(w http.ResponseWriter,r *http.Request) {
 		    removerr :=   minio.Minio.RemoveObject(r.Context(),"klms-profiles",profileimage,sdk.RemoveObjectOptions{})
 	
 	        if removerr != nil {
+				log.Println("from logout Removerr",removerr)
 				responses.JsonError(w,"Internal Server Error")
 				return 
 			}
 		}
 
 
-	deletequery := "delete from users where username=$1"
-
-	result,delerr := postgres.Db.ExecContext(r.Context(),deletequery,username)
-
-	if delerr != nil {
-		responses.JsonError(w,"Internal Server Error")
-		return
-	}
-
-   check,rowsafferr := result.RowsAffected()
-   
-   if rowsafferr != nil {
-	    responses.JsonError(w,"Internal Server Error")
-		return
-   }
-
   cmd :=  redis.Redis.Del(r.Context(),sessionid.Value).Err()
 
   if cmd != nil {
+	 log.Println("From logout cmd err",cmd.Error())
 	  responses.JsonError(w,"Internal Server Error")
 	  return 
   }
@@ -87,12 +76,7 @@ func Logout(w http.ResponseWriter,r *http.Request) {
 		SameSite: http.SameSiteLaxMode,
 	})
 
-   if check > 0 {
-	   responses.JsonSucess(w,"Logout Successfully")
-   } else {
-	    responses.JsonError(w,"Logout Failed")
-		
-   }
+    responses.JsonSucess(w,"Logout Successfully")
 
 
 			 

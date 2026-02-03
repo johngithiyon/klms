@@ -13,6 +13,7 @@ import (
 
 func Startup() {
 
+
 	config.Loadenv()
 	postgres.Db = postgres.GetPostgresConnection()
 	minio.Minio = minio.MinioConnection()
